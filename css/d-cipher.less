@@ -1,0 +1,854 @@
+@import "bootstrap-colorpicker.css";
+
+#d-cipher-container, #d-cipher-topmenu {
+  font: 200 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  letter-spacing: 0.05em;
+  color: #333;
+  box-sizing: border-box;
+  opacity: 1;
+  :focus{
+    outline: none
+  }
+  input {
+    box-shadow: none;
+    font: inherit;
+    margin: 0;
+    padding: 4px;
+    height: initial;
+    width: initial;
+  }
+}
+
+#d-cipher-menu {
+  position: fixed;
+  z-index: 1000001;
+  left: 0;
+  bottom: 0;
+  .btn {
+    //border: solid 2px white;
+    //background-color: gray;
+    display: none;
+    width: 42px;
+    height: 42px;
+    padding: 7px 15px 10px 15px;
+    cursor: pointer;
+    .rec {
+      width: 1em;
+      height: 1em;
+      margin: auto;
+      background-color: white;
+      border-radius: 1em;
+    }
+    .stop {
+      width: 0.8em;
+      height: 0.8em;
+      margin: 0.1em;
+      background-color: white;
+    }
+    .recs:before{
+      position: relative;
+      top: 8px;
+      content: '';
+      display: block;
+      width: 21px;
+      height: 5px;
+      background-color: white;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    .recs{
+      width: 21px;
+      height: 5px;
+      //margin: 10px;
+      background-color: white;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    .recs:after{
+      position: relative;
+      top: 11px;
+      content: '';
+      display: block;
+      width: 21px;
+      height: 5px;
+      background-color: white;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+#d-cipher-taskbar div:last-child .del{
+  right: 20px;
+}
+#d-cipher-taskbar{
+  display: inline-block;
+  height: 42px;
+  vertical-align: top;
+  color: white;
+  font-size: 19px;
+  //padding: 10px 0 0 20px;
+  overflow: hidden;
+  white-space: nowrap;
+  #d-cipher-task-progress{
+    display: none;
+    width: 100%;
+    height: 40px;
+    background-color: limegreen;
+    position: absolute;
+    margin: 1px;
+    z-index: -1;
+  }
+  .start-test, .record-master{
+    display: none;
+    float: left;
+    cursor: pointer;
+    padding: 9px 15px;
+    margin-left: 1px;
+    background-color: gray;
+  }
+  .start-test:hover, .record-master:hover{
+    color: black;
+    background-color: silver;
+  }
+  .d-cipher-task:hover .del{
+    color: white;
+  }
+  .d-cipher-task{
+    position: absolute;
+    top: 0;
+    height: 42px;
+    //background: linear-gradient(#C0C0C0, #808080);
+    .step-number{
+      display: inline-block;
+      height: 42px;
+      width: 42px;
+      padding-top: 6px;
+      font-size: 24px;
+      text-align: center;
+      margin-left: 1px;
+      background-color: gray;
+      border-right: solid 2px darkgray;
+      cursor: pointer;
+    }
+    .invite-icon{
+      position: absolute;
+      z-index: -1;
+      top: 12px;
+      display: inline-block;
+      width: 32px;
+      height: 18px;
+      margin-left: -77px;
+      border: solid 1px white;
+      background-color: white;
+      cursor: pointer;
+      box-shadow: 1px 1px 2px gray;
+    }
+    .invite-icon::before{
+      display: inline-block;
+      content: '';
+      width: 20px;
+      height: 19px;
+      border-left: solid 1px lightgray;
+      transform: translate(1px, -13px) rotate(-61deg);
+    }
+    .invite-icon::after{
+      display: inline-block;
+      content: '';
+      width: 20px;
+      height: 19px;
+      border-left: solid 1px gray;
+      transform: translate(-2px,3px) rotate(61deg);
+    }
+    .step-number.active, .step-number:hover{
+      background-color: white;
+      color: silver;
+    }
+    .task-description{
+      display: inline-block;
+      padding: 2px 0 0 20px;
+      vertical-align: middle;
+      height: 100%;
+    }
+    .task-description-input{
+      width: 95%;
+      //padding: 0;
+    }
+    .task-description-input:disabled{
+      color: white;
+      background: none;
+      border: none;
+    }
+    .del {
+      display: inline-block;
+      position: absolute;
+      right: -25px;
+      top: 2px;
+      margin: 0.35em;
+      color: transparent;
+      cursor: pointer;
+    }
+  }
+  #d-cipher-test-name{
+    //display: none;
+    float: left;
+    padding: 9px 25px;
+  }
+  .d-cipher-task-done{
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    //padding: 10px 20px;
+    text-align: center;
+    width: 100%;
+    height: 42px;
+    background-color: limegreen;
+    color: white;
+    span{
+      position: relative;
+      top: 2px;
+      left: -7px;
+      display: inline-block;
+      font-size: 166%;
+    }
+  }
+  .d-cipher-task.active{
+
+  }
+  .d-cipher-task.done{
+
+  }
+}
+#d-cipher-add-task{
+  display: none;
+}
+#d-cipher-topmenu{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 42px;
+  background: linear-gradient(#C0C0C0, #808080);
+  z-index: 1000100;
+  .btn{
+    width: 42px;
+    height: 42px;
+    background-color: gray;
+    padding: 10px;
+    margin: 0 1px;
+    cursor: pointer;
+    display: inline-block;
+    .play{
+      width: 0;
+      height: 0;
+      border: solid 12px transparent;
+      border-left-color: white;
+      transform: scale(1.5, 1) translate(7px, 0);
+    }
+    .add-task{
+      font-size: 30px;
+      font-weight: bold;
+      color: white;
+    }
+    .test:before{
+      content: 'T';
+      color: gray;
+      position: absolute;
+      padding-left: 5px;
+      display: inline-block;
+      font: bold 19px 'Helvetica Neue';
+    }
+    .test{
+      width: 22px;
+      height: 22px;
+      background-color: white;
+      border-radius: 12px;
+    }
+    .rec {
+      //width: 1em;
+      //height: 1em;
+      margin: auto;
+      background-color: white;
+      border-radius: 1em;
+      padding: 11px;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    .stop {
+      margin: auto;
+      background-color: white;
+      width: 20px;
+      height: 20px;
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    }
+  }
+  .btn:hover{
+    background-color: silver;
+    .rec, .stop{
+      background-color: black;
+    }
+    .play{
+      border-left-color: black;
+    }
+  }
+  .btn.add-task{
+    display: none;
+    float: right;
+    padding: 0 13px;
+  }
+
+}
+
+#d-cipher-canvas-holder {
+  display: none;
+  position: fixed;
+  z-index: 1000000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  .cnv{
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+#d-cipher-stat {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 1000000;
+  display: none;
+  background-color: rgba(255, 0, 255, 0.5);
+  color: white;
+  width: 100%;
+  padding: 0.5em 1em;
+}
+
+#d-cipher-timeline-info {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: 52px;
+  width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  white-space: nowrap;
+  font-size: 18px;
+  padding-top: 15px;
+  span{
+    font-weight: lighter;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    padding-right: 15px;
+    padding-left: 3px;
+  }
+}
+
+#d-cipher-timeline-tooltip{
+  display: none;
+  position: fixed;
+  max-width: 200px;
+  z-index: 10000015;
+  padding: 10px;
+  line-height: 1.6em;
+  background-color: whitesmoke;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+}
+
+#d-cipher-timeline-tooltip:after{
+  display: block;
+  position: relative;
+  bottom: -20px;
+  margin: auto;
+  content: '';
+  width: 0;
+  height: 0;
+  border: solid 5px transparent;
+  border-top-color: whitesmoke;
+}
+
+#d-cipher-timeline-cursor{
+  position: absolute;
+  display: none;
+  padding: 2px 0;
+  border: solid 4px transparent;
+  //border-top-color: white;
+  //border-bottom-color: white;
+  transform: scale(1, 2.2) translate(-4px, -2.5px);
+}
+
+#d-cipher-timeline {
+  position: fixed;
+  display: none;
+  left: 0;
+  bottom: 0;
+  z-index: 1000000;
+  //display: none;
+  background-color: rgba(181, 181, 181, 1);
+  color: white;
+  height: 52px;
+  width: 100%;
+  box-shadow: inset 0 7px 8px 0 rgba(0,0,0,0.24);
+  canvas {
+    //width: 100%;
+    //height: inherit;
+    //background-color: magenta;
+  }
+  .brackets{
+    position: absolute;
+    top: 0;
+    display: none;
+    height: 52px;
+    //z-index: -1;
+    width: 0;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-right: solid 1px white;
+    border-left: solid 1px white;
+    .left-bracket, .right-bracket{
+      cursor: ew-resize;
+      width: 10px;
+      height: inherit;
+      //background-color: red;
+      margin: 0;
+      padding: 0;
+    }
+    .right-bracket{
+      float: right;
+      margin-right: -6px;
+    }
+    .left-bracket{
+      margin-left: -5px;
+    }
+  }
+}
+
+#d-cipher-click {
+  display: none;
+  position: absolute;
+  z-index: 1000002;
+  top: 102px;
+  left: 102px;
+  width: 16px;
+  height: 16px;
+  border-radius: 10px;
+  border: solid 2px rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 0, 255, 0.5);
+}
+
+#d-cipher-dblclick:before {
+  content: '';
+  margin: -4px;
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 20px;
+  border: solid 2px rgba(255, 255, 255, 0.9);
+  background-color: transparent;
+  /*
+  content: '';
+  display: block;
+  width: 18px ;
+  height: 18px;
+  border-radius: 20px;
+  border: solid 2px rgba(255, 255, 255, 0.5);
+  background-color: transparent; //rgba(255, 0, 255, 0.5);
+  */
+}
+#d-cipher-dblclick {
+  display: none;
+  position: absolute;
+  z-index: 1000001;
+  top: 100px;
+  left: 100px;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  border: solid 2px rgba(255, 0, 255, 0.5);
+  background-color: transparent;
+}
+#d-cipher-highlight-event, #d-cipher-timeline-circle {
+  display: none;
+  position: absolute;
+  z-index: 1000001;
+  top: 100px;
+  left: 100px;
+  width: 24px;
+  height: 24px;
+  border-radius: 20px;
+  border: solid 4px rgba(255, 255, 255, 0.7);
+  background-color: transparent;
+  transform: translate(-12px, -12px);
+}
+#d-cipher-highlight-event:before, #d-cipher-timeline-circle:before{
+  content: '';
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: solid 2px red;
+  border-radius: 22px;
+  margin: -3px;
+}
+#d-cipher-timeline-circle{
+  //transform: translate(-8px, -6px);
+}
+#d-cipher-dblclick:after {
+  /*
+  content: '';
+  display: block;
+  margin-top: -26px;
+  margin-left: -4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 20px;
+  border: solid 2px rgba(255, 255, 255, 0.5);
+  background-color: transparent;
+  */
+}
+
+#d-cipher-cursor {
+  position: absolute;
+  z-index: 1000020;
+  top: -100px;
+  left: -100px;
+  width: 13px;
+  height: 19px;
+  background: no-repeat center center url('images/cursor.png');
+}
+
+#d-cipher-m-tooltip{
+  display: none;
+  position: fixed;
+  white-space: nowrap;
+  z-index: 10000015;
+  //max-height: 5em;
+  //overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+  padding: 5px;
+  /*
+  table, tr{
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  td{
+    padding: 0 5px;
+    line-height: inherit;
+    min-height: 20px;
+  }
+  .tt-header{
+    font-weight: 200;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+  .tt-name{
+    font-weight: lighter;
+    letter-spacing: 0.05em;
+    margin-right: 0.5em;
+    text-align: right;
+  }
+  .tt-value{
+    font-weight: 200;
+  }
+  */
+}
+
+#d-cipher-m-tooltip, #d-cipher-event-info, #d-cipher-timeline-tooltip{
+  table, tr{
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  .empty-row{
+    height: 10px;
+  }
+  td{
+    padding: 0 5px;
+    line-height: inherit;
+  }
+  .tt-header{
+    font-weight: 200;
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+  .tt-name{
+    font-weight: lighter;
+    letter-spacing: 0.05em;
+    margin-right: 0.5em;
+    text-align: right;
+  }
+  .tt-value{
+    font-weight: 200;
+  }
+}
+
+#d-cipher-event-info{
+  display: none;
+  position: fixed;
+  z-index: 10000015;
+  padding: 10px;
+  line-height: 1.6em;
+  background-color: whitesmoke;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, .3);
+}
+
+/*
+#d-cipher-event-info:before{
+  position: absolute;
+  left: 50%;
+  bottom: -24px;
+  width: 0;
+  height: 0;
+  margin-top: -12px;
+  margin-left: -24px;
+  content: '';
+  border: solid 12px transparent;
+  border-top-color: whitesmoke;
+}
+*/
+
+/*
+#d-cipher-session-list:before{
+  position: absolute;
+  top: 50%;
+  width: 0;
+  height: 0;
+  left: -24px;
+  //display: inline-block;
+  margin-top: -12px;
+  content: '';
+  border: solid 12px transparent;
+  border-right-color: whitesmoke;
+}
+*/
+#d-cipher-session-list{
+  .shadow;
+  display: none;
+  position: fixed;
+  z-index: 1000010;
+  bottom: 52px;
+  left: 1px;
+  width: 18em;
+  max-height: 650px;
+  padding: 0.5em 0;
+  //overflow-x: hidden;
+  //overflow-y: auto;
+  background-color: silver;
+  text-overflow: ellipsis;
+  cursor: default;
+  .rec:hover, .rec.active{
+    background-color: #999999;
+    color: white;
+    input.rec-name{
+      color: white;
+    }
+  }
+  .rec:hover > .play{
+    border-left-color: white;
+  }
+  .rec:hover > .del{
+    color: white;
+  }
+  /*
+  .rec:hover > .cp-span{
+    border-color: white;
+  }
+  */
+  .rec:hover > .cp-span > .cp-i{
+    border: solid 2px white;
+  }
+  .rec{
+    padding: 2px;
+    .del{
+      display: inline-block;
+      position: absolute;
+      right: 5px;
+      margin: 0.35em;
+      color: transparent;
+      cursor: pointer;
+    }
+    .show{
+      /*
+      display: inline-block;
+      float: left;
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      background-color: white;
+      border: solid 2px magenta;
+      margin: 0.3em;
+      color: transparent;
+      cursor: pointer;
+      */
+      display: inline-block;
+      float: left;
+      width: 1em;
+      height: 1em;
+      border-radius: 1em;
+      border: solid 1px transparent;
+      margin: .3em;
+      color: transparent;
+      cursor: pointer;
+      border-bottom-color: white;
+      transform: scale(1.5, 1.8) translate(0, -5px);
+    }
+    .play{
+      display: block;
+      width: 0;
+      height: 0;
+      border: solid 0.65em transparent;
+      position: absolute;
+      right: -0.4em;
+      margin: 0.3em;
+      color: transparent;
+      cursor: pointer;
+    }
+    .chckb-show{
+      position: absolute;
+      left: -9999px;
+    }
+    .chckb-show:checked + label{
+      border: solid 2px white;
+      transform: scale(1, 0.6);
+    }
+    .chckb-show:checked + label:before{
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 8px;
+      background-color: white;
+      transform: translate(3px, 3px) scale(1, 1.7);
+    }
+    input.rec-name{
+      color: white;
+      background-color: transparent;
+      border: solid 1px transparent;
+      margin: 0 0 0 41px;
+    }
+    input.rec-name:focus{
+      background-color: white;
+      color: gray;
+      border: solid 1px gray;
+    }
+    .cp-container{
+      position: absolute;
+      left: 22px;
+      width: 0;
+      height: 0;
+      margin-top: -2px;
+      margin-left: 3px;
+    }
+    .cp-span{
+      display: block;
+      width: 6px;
+      height: 18px;
+      margin: 6px;
+      border: solid 1px white;
+      //border-radius: 1em;
+      background-color: white;
+      .cp-i{
+        display: block;
+        width: 7px;
+        height: 18px;
+        margin-left: -1px;
+        //margin: 0.3em;
+        //border: solid 2px white;
+        //border-radius: 1em;
+      }
+    }
+    .cp-pos{
+      .shadow;
+      position: relative;
+      box-sizing: content-box;
+      top: -133px;
+      left: 21px;
+      text-align: left;
+      background-color: white;
+    }
+  }
+  .bs-colorpicker:after{
+    position: absolute;
+    display: block;
+    top: 113px;
+    left: -14px;
+    right: auto;
+    border: solid 7px transparent;
+    border-right-color: white;
+    margin: 0;
+  }
+}
+
+#d-cipher-test-list{
+  .shadow;
+  display: none;
+  position: fixed;
+  z-index: 1000000;
+  top: 52px;
+  left: 1px;
+  //width: 300px;
+  max-width: 450px;
+  max-height: 450px;
+  text-overflow: ellipsis;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: silver;
+  cursor: default;
+  .test:hover, .test.active{
+    background-color: #999999;
+    color: white;
+    input.test-name{
+      color: white;
+    }
+  }
+  .test:hover > .del{
+    color: white;
+  }
+  .test {
+    padding: 2px 20px 2px 10px;
+    .del {
+      display: inline-block;
+      position: absolute;
+      right: 5px;
+      margin: 0.35em;
+      color: transparent;
+      cursor: pointer;
+    }
+    input.test-name{
+      display: inline-block;
+      color: white;
+      background-color: transparent;
+      border: solid 1px transparent;
+      margin: 0 20px 0 10px;
+      text-overflow: ellipsis;
+      width: 250px;
+    }
+    input.test-name:focus{
+      background-color: white;
+      color: gray;
+      border: solid 1px gray;
+    }
+  }
+  .tests-ctrls{
+    background-color: gray;
+    .but-create-test{
+      font-weight: bold;
+      font-size: 24px;
+      color: white;
+      padding: 0 8px 6px 0;
+      line-height: 21px;
+      float: right;
+      cursor: pointer;
+    }
+  }
+}
+
+.shadow {
+  box-shadow: 3px 3px 7px rgba(0, 0, 0, .3);
+}
+
