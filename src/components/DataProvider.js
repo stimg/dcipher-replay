@@ -1,20 +1,19 @@
 import CsvParser from "./CsvParser";
 
-export default class FileLoader {
+export default class DataProvider {
 
     static fileList;
-    eventsFile = "events.csv";
-    clicksFile = "clicks.csv";
+    static eventList;
+    static eventsFile = "events.csv";
+    static clicksFile = "clicks.csv";
 
-    constructor(fileList) {
-        this.fileList = fileList;
+    static getFrameImageUrl(frameNumber) {
+        const event = DataProvider.eventList[frameNumber];
+        const file = DataProvider.findFile(event.Image);
+        return window.URL.createObjectURL(file);
     }
 
-    static readFile(file) {
-
-    }
-
-    findFile(fileName) {
+    static findFile(fileName) {
         const fl = this.fileList;
         let file = null;
         for (let i = 0, len = fl.length; i < len; i++) {
@@ -26,15 +25,16 @@ export default class FileLoader {
 
     // loadImage(name) {}
 
-    loadEventData() {
+    static loadEventData() {
 
         return new Promise((resolve, reject) => {
-            const file = this.findFile(this.eventsFile);
+            const file = DataProvider.findFile(DataProvider.eventsFile);
             const fr = new FileReader();
             fr.onload = event => {
                 const csv = event.target.result;
-                const events = CsvParser.parse(csv);
-                resolve(events);
+                const eventList = CsvParser.parse(csv);
+                DataProvider.eventList = eventList;
+                resolve(eventList);
             };
             fr.onerror = err => {
                 reject(err);

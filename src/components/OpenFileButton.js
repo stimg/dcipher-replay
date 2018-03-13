@@ -1,12 +1,12 @@
 import React from 'react';
-import FileLoader from "./FileLoader";
+import DataProvider from "./DataProvider";
 
 export default class OpenFileButton extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.loadEventData = FileLoader.loadEventData.bind(this);
+        this.loadEventData = DataProvider.loadEventData.bind(this);
     }
 
     render() {

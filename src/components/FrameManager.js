@@ -1,27 +1,15 @@
 import React from "react";
-import FileLoader from "./FileLoader";
+import DataProvider from "./DataProvider";
 
 export default class FrameManager {
 
-    constructor(dataSet) {
-        this.state = {
-            currentFrame: 0,
-            scaleFactor: 1,
-            isDataSetReady: false
-        };
-        this.fileLoader = new FileLoader(dataSet)
+    constructor() {
+        this.currentFrame = 0;
+        this.scaleFactor = 1;
     }
 
-    get dataSetReady() {
-        return this.state.isDataSetReady;
-    }
-
-    resetState() {
-        this.fileLoader.loadEventData().then(eventData => {
-            this.setState({
-                isDataSetReady: true
-            });
-        });
+    getFrameImageUrl() {
+        return DataProvider.getFrameImageUrl(this.currentFrame);
     }
 
 }

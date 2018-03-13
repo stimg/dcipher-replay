@@ -19,6 +19,12 @@ input {
   width: 100%;
 }
 
+.frame-image {
+  height: 100%;
+  width: 100%;
+  background-size: contain;
+}
+
 #openFileInput {
   display: none;
 }
