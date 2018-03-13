@@ -23,10 +23,7 @@ export default class DataProvider {
         return null;
     }
 
-    // loadImage(name) {}
-
     static loadEventData() {
-
         return new Promise((resolve, reject) => {
             const file = DataProvider.findFile(DataProvider.eventsFile);
             const fr = new FileReader();

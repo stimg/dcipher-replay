@@ -13,8 +13,7 @@ export default class Viewport extends React.Component {
         let element;
         if (this.props.isReady) {
             const url = "url('" + this.frameManager.getFrameImageUrl() + "')";
-            // element = <div className="frame-image" style={style}/>
-            element = <div className="frame-image" style={{background: url}}/>
+            element = <div className="frame-image" style={{backgroundImage: url}}/>
         } else {
             element = <div className="drag-files-msg">[ + ] To OPEN project <br /> please select ALL files in the project folder and drag them here</div>
         }
