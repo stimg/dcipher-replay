@@ -3,7 +3,6 @@ import './App.css';
 
 import OpenFileButton from './components/OpenFileButton';
 import DataProvider from "./components/DataProvider";
-import FrameManager from "./components/FrameManager";
 import Viewport from "./components/Viewport";
 
 class App extends React.Component {
@@ -11,12 +10,21 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
-        this.handleFilesDrop = this.handleFilesDrop.bind(this);
-        this.handleFilesDrag = this.handleFilesDrag.bind(this);
         this.state = {
             eventList: [],
-            scaleFactor: 1
+            scaleFactor: 1,
+            currentFrame: 0
         };
+
+        this.handleFilesDrop = this.handleFilesDrop.bind(this);
+        this.handleFilesDrag = this.handleFilesDrag.bind(this);
+        this.keyInputHandler = this.keyInputHandler.bind(this);
+
+        window.onkeydown = this.keyInputHandler;
+    }
+
+    get scaleFactor() {
+        return this.state.scaleFactor;
     }
 
     getViewportSize() {
@@ -42,7 +50,6 @@ class App extends React.Component {
         event.stopPropagation();
         event.preventDefault();
         DataProvider.fileList = event.dataTransfer.files;
-        // this.dataProvider = new DataProvider(this.dataSet);
         DataProvider.loadEventData().then(events => {
             this.getViewportSize().then(vpSize => {
                 const scaleFactor = this.getScaleFactor(vpSize);
@@ -64,9 +71,29 @@ class App extends React.Component {
         return (
             <div className="App" onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
                 {/*<OpenFileButton/>*/}
-                <Viewport eventList={this.state.eventList} isReady={this.state.eventList.length} scaleFactor={this.getScaleFactor} />
+                <Viewport eventList={this.state.eventList} isReady={this.state.eventList.length} currentFrame={this.state.currentFrame} />
             </div>
         );
+    }
+
+    keyInputHandler(event) {
+
+        const keyCode = event.keyCode;
+        const cFrame = this.state.currentFrame;
+        const eLen = this.state.eventList.length;
+
+        switch (keyCode) {
+            case 37:
+                this.setState({
+                    currentFrame: cFrame > 1 ? cFrame - 1 : 0
+                });
+                break;
+            case 39:
+                this.setState({
+                    currentFrame: cFrame < eLen - 1 ? cFrame + 1 : eLen
+                });
+                break;
+        }
     }
 }
 
