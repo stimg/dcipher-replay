@@ -72,11 +72,15 @@ class App extends React.Component {
         event.preventDefault();
         DataProvider.fileList = event.dataTransfer.files;
         DataProvider.loadEventData().then(events => {
-            this.setState({
-                eventList: events,
-                currentFrame: 0
+            this.getViewportSize().then(vpSize => {
+                this.setState({
+                    eventList: events,
+                    currentFrame: 0,
+                    scaleFactor: this.getScaleFactor(vpSize),
+                    originalViewportWidth: vpSize.w,
+                    originalViewportHeight: vpSize.h
+                });
             });
-            this.setViewportSize();
         });
     }
 

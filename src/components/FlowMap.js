@@ -57,10 +57,14 @@ export default class FlowMap extends React.Component {
         this.lineWidth = 2;
     }
 
+    componentDidUpdate() {
+        this.drawFlowMap();
+    }
+
     drawFlowMap() {
 
         const pars = this.props.pars;
-        if (!pars.eventList.length || !pars.currentFrame) return;
+        if (!pars.eventList.length) return;
 
         const data = pars.eventList.slice(0, pars.currentFrame + 1);
         const scale = pars.scaleFactor;
@@ -225,7 +229,6 @@ export default class FlowMap extends React.Component {
         const scale = pars.scaleFactor;
         const w = pars.originalViewportWidth * scale;
         const h = pars.originalViewportHeight * scale;
-        this.drawFlowMap();
 
         return (
             <canvas ref="flowMap" className='flow-map' width={w} height={h}></canvas>
