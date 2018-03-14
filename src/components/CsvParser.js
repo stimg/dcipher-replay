@@ -2,14 +2,19 @@ export default class CsvParser {
     static parse(csvString) {
         const rows = csvString.split('\n');
         const headers = rows.shift().split(',');
+        const len = headers.length;
+        let events = [];
 
-        return rows.map(row => {
+        rows.forEach(row => {
             const obj = {};
             const data = row.split(',');
-            headers.forEach((header, index) => {
-                obj[header] = data[index];
-            });
-            return obj;
+            if (data.length === len) {
+                headers.forEach((header, index) => {
+                    obj[header] = data[index];
+                });
+                events.push(obj);
+            }
         });
+        return events;
     }
 }

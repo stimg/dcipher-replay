@@ -1,7 +1,6 @@
 import React from 'react';
 import './App.css';
 
-import OpenFileButton from './components/OpenFileButton';
 import DataProvider from "./components/DataProvider";
 import Viewport from "./components/Viewport";
 
@@ -13,7 +12,9 @@ class App extends React.Component {
         this.state = {
             eventList: [],
             scaleFactor: 1,
-            currentFrame: 0
+            currentFrame: 0,
+            originalViewportWidth: 0,
+            originalViewportHeight: 0
         };
 
         this.handleFilesDrop = this.handleFilesDrop.bind(this);
@@ -55,7 +56,9 @@ class App extends React.Component {
                 const scaleFactor = this.getScaleFactor(vpSize);
                 this.setState({
                     eventList: events,
-                    scaleFactor: scaleFactor
+                    scaleFactor: scaleFactor,
+                    originalViewportWidth: vpSize.w,
+                    originalViewportHeight: vpSize.h
                 });
             });
         });
@@ -70,8 +73,7 @@ class App extends React.Component {
     render() {
         return (
             <div className="App" onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
-                {/*<OpenFileButton/>*/}
-                <Viewport eventList={this.state.eventList} isReady={this.state.eventList.length} currentFrame={this.state.currentFrame} />
+                <Viewport pars={this.state} />
             </div>
         );
     }
@@ -80,7 +82,7 @@ class App extends React.Component {
 
         const keyCode = event.keyCode;
         const cFrame = this.state.currentFrame;
-        const eLen = this.state.eventList.length;
+        const eLen = this.state.eventList.length - 1;
 
         switch (keyCode) {
             case 37:
@@ -90,7 +92,7 @@ class App extends React.Component {
                 break;
             case 39:
                 this.setState({
-                    currentFrame: cFrame < eLen - 1 ? cFrame + 1 : eLen
+                    currentFrame: cFrame < eLen ? cFrame + 1 : eLen
                 });
                 break;
         }
