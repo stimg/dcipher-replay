@@ -74,6 +74,7 @@ class App extends React.Component {
         DataProvider.loadEventData().then(events => {
             this.setState({
                 eventList: events,
+                currentFrame: 0
             });
             this.setViewportSize();
         });

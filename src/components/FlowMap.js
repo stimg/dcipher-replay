@@ -54,6 +54,7 @@ export default class FlowMap extends React.Component {
 
     constructor(props) {
         super(props);
+        this.lineWidth = 2;
     }
 
     drawFlowMap() {
@@ -61,97 +62,117 @@ export default class FlowMap extends React.Component {
         const pars = this.props.pars;
         if (!pars.eventList.length || !pars.currentFrame) return;
 
-        const data = pars.eventList.slice(0, pars.currentFrame);
+        const data = pars.eventList.slice(0, pars.currentFrame + 1);
         const scale = pars.scaleFactor;
         const canvas = this.refs.flowMap;
-        const ctx = canvas.getContext('2d');
+        const context = canvas.getContext('2d');
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
+        context.lineWidth = this.lineWidth;
+        context.fillStyle = 'white';
+        context.strokeStyle = 'magenta';
+        context.lineCap = 'square';
+        context.lineJoin = 'miter';
+        context.miterLimit = 4.0;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 3.0;
+        context.shadowBlur = 4.0;
+        context.shadowColor = 'rgba(0, 0, 0, 0.3)';
+
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.beginPath();
 
         // Draw lines
         data.forEach((row, index, events) => {
 
-            if (row.Event === 'START') return;
-
-            const prevRow = events[index - 1];
-            const prevX = prevRow.X * scale;
-            const prevY = prevRow.Y * scale;
             const x = row.X * scale;
             const y = row.Y * scale;
 
-            if (row.Event === 'LB_DRAG_START') {
+            if (row.Event === 'START') {
 
-                // Draw line to last mouse down position
-                ctx.stroke();
-                ctx.save();
+                context.moveTo(x, y);
 
-                // Draw dashed line from last mouse down position
-                ctx.beginPath();
-                ctx.setLineDash([5, 5]);
-                ctx.moveTo(prevX, prevY);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-                ctx.restore();
+            } else {
 
-                // Begin new path and move start to current mouse position
-                ctx.beginPath();
-                ctx.moveTo(x, y);
+                const prevRow = events[index - 1];
+                const prevX = prevRow.X * scale;
+                const prevY = prevRow.Y * scale;
 
-            } else if ((prevRow && !prevRow.Event.match(/wheel|scroll/i)) || !row.Event.match(/wheel|scroll/i) || row.index) {
+                if (row.Event.match('_DRAG_END')) {
 
-                ctx.lineTo(x, y);
+                    // Draw line to last mouse down position
+                    context.stroke();
+                    context.save();
 
+                    // Draw dashed line from last mouse down position
+                    context.beginPath();
+                    context.setLineDash([5, 5]);
+                    context.moveTo(prevX, prevY);
+                    context.lineTo(x, y);
+                    context.stroke();
+                    context.restore();
+
+                    // Begin new path and move start to current mouse position
+                    context.beginPath();
+                    context.moveTo(x, y);
+
+                } else {
+
+                    context.lineTo(x, y);
+
+                }
             }
 
         });
-        ctx.stroke();
+        context.stroke();
 
-        // Draw event pictograms
-        ctx.setLineDash([]);
-        ctx.beginPath();
-        data.forEach((row, index, events) => {
+        // Draw event icons
+        context.setLineDash([]);
+        context.lineWidth = this.lineWidth * 2;
+        context.beginPath();
 
-            const prevRow = index ? events[index - 1] : null;
+        data.forEach((row) => {
             const x = row.X * scale;
             const y = row.Y * scale;
 
-            if (!row.Event.match(/wheel|scroll/i)) {
-
-                this.drawEventPict(ctx, row.Event, x, y);
-
-            } else if (!prevRow || !prevRow.Event.match(/wheel|scroll/i)) {
-
-                this.drawEventPict(ctx, 'wheel', x, y);
-
-            }
-
+            this.drawEventPict(context, row.Event, x, y);
         });
 
-        ctx.stroke();
-        ctx.fill();
+        context.stroke();
+        context.fill();
 
     };
 
-    drawEventPict (ctx, type, x, y) {
+    drawEventPict(ctx, type, x, y) {
 
         if (EVENTS_TO_DRAW.indexOf(type) > -1) {
 
-            const endAngle = 2 * Math.PI, d = 3;
+            const endAngle = 2 * Math.PI;
+            const scale = 2;
+            const lineFix = this.lineWidth / 2;
+            const d = 6;
 
-            if (type.match('_CLICK')) {
+            if (type === 'START') {
 
-                ctx.moveTo(x - 1, y - 3);
-                ctx.lineTo(x - 1, y + 3);
+                ctx.moveTo(x + lineFix, y - 3 * scale);
+                ctx.lineTo(x + lineFix, y + 3 * scale);
+                ctx.lineTo(x + lineFix + 4 * scale, y);
+                ctx.lineTo(x + lineFix, y - 3 * scale);
 
-            } else if (type === 'click') {
+            } else if (type === 'STOP') {
+
+                ctx.moveTo(x - lineFix, y - 3 * scale);
+                ctx.lineTo(x - lineFix, y + 3 * scale);
+                ctx.lineTo(x - lineFix - 4 * scale, y);
+                ctx.lineTo(x - lineFix, y - 3 * scale);
+
+            } else if (type.match('_CLICK')) {
 
                 ctx.moveTo(x + d, y);
                 ctx.arc(x, y, d, 0, endAngle, true);
 
             } else if (type.match('_DBL_CLICK')) {
 
-                const r = d - 1;
+                const r = d;
                 ctx.moveTo(x + 2 * r, y);
                 ctx.arc(x, y, 2 * r, 0, endAngle, true);
                 ctx.stroke();
@@ -162,32 +183,37 @@ export default class FlowMap extends React.Component {
 
             } else if (type.match('_DRAG_START')) {
 
-                ctx.moveTo(x + 3, y - 2);
-                ctx.lineTo(x, y + 3);
-                ctx.lineTo(x - 3, y - 2);
-                ctx.lineTo(x + 3, y - 2);
+                ctx.moveTo(x + 3 * scale, y - 2 * scale);
+                ctx.lineTo(x, y + 3 * scale);
+                ctx.lineTo(x - 3 * scale, y - 2 * scale);
+                ctx.lineTo(x + 3 * scale, y - 2 * scale);
 
             } else if (type.match('_DRAG_END')) {
 
-                ctx.moveTo(x - 3, y + 2);
-                ctx.lineTo(x, y - 3);
-                ctx.lineTo(x + 3, y + 2);
-                ctx.lineTo(x - 3, y + 2);
+                ctx.moveTo(x - 3 * scale, y + 2 * scale);
+                ctx.lineTo(x, y - 3 * scale);
+                ctx.lineTo(x + 3 * scale, y + 2 * scale);
+                ctx.lineTo(x - 3 * scale, y + 2 * scale);
 
-            }  else if (type.match('MOUSE_WHEEL')) {
+            } else if (type.match('MOUSE_WHEEL_END_SCROLL')) {
 
-                ctx.moveTo(x - 3, y - 1);
-                ctx.lineTo(x, y - 4);
-                ctx.lineTo(x + 3, y - 1);
-                ctx.closePath();
+                ctx.moveTo(x - 4 * scale, y - 3 * scale);
+                ctx.lineTo(x - 4 * scale, y + 3 * scale);
+                ctx.lineTo(x, y);
+                ctx.lineTo(x - 4 * scale, y - 3 * scale);
 
-                ctx.moveTo(x - 3, y + 1);
-                ctx.lineTo(x, y + 4);
-                ctx.lineTo(x + 3, y + 1);
-                ctx.closePath();
+                ctx.moveTo(x + 4 * scale, y - 3 * scale);
+                ctx.lineTo(x + 4 * scale, y + 3 * scale);
+                ctx.lineTo(x, y);
+                ctx.lineTo(x + 4 * scale, y - 3 * scale);
 
             } else if (type.match('KEYPRESS')) {
 
+                ctx.moveTo(x - 2 * scale, y - 2 * scale);
+                ctx.lineTo(x - 2 * scale, y + 2 * scale);
+                ctx.lineTo(x + 2 * scale, y + 2 * scale);
+                ctx.lineTo(x + 2 * scale, y - 2 * scale);
+                ctx.lineTo(x - 2 * scale, y - 2 * scale);
             }
 
         }
