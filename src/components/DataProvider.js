@@ -1,11 +1,10 @@
-import CsvParser from "./CsvParser";
+import CsvParser from './CsvParser';
 
 export default class DataProvider {
 
     static fileList;
     static eventList;
-    static eventsFile = "events.csv";
-    static clicksFile = "clicks.csv";
+    static eventsFile = 'events.csv';
 
     static getFrameImageUrl(frameNumber) {
         const event = DataProvider.eventList[frameNumber];

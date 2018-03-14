@@ -1,10 +1,12 @@
 import React from 'react';
 import './App.css';
 
-import DataProvider from "./components/DataProvider";
-import Viewport from "./components/Viewport";
+import DataProvider from './components/DataProvider';
+import Viewport from './components/Viewport';
 
 class App extends React.Component {
+
+    winResizeTID = null;
 
     constructor(props) {
         super(props);
@@ -22,10 +24,18 @@ class App extends React.Component {
         this.keyInputHandler = this.keyInputHandler.bind(this);
 
         window.onkeydown = this.keyInputHandler;
+        window.onresize = this.handleWindowResize.bind(this);
     }
 
     get scaleFactor() {
         return this.state.scaleFactor;
+    }
+
+    handleWindowResize() {
+        if (this.winResizeTID) {
+            clearTimeout(this.winResizeTID);
+        }
+        this.winResizeTID = setTimeout(() => this.setViewportSize(), 500);
     }
 
     getViewportSize() {
@@ -47,20 +57,25 @@ class App extends React.Component {
         return Math.min(w / vpSize.w, h / vpSize.h);
     }
 
+    setViewportSize() {
+        this.getViewportSize().then(vpSize => {
+            this.setState({
+                scaleFactor: this.getScaleFactor(vpSize),
+                originalViewportWidth: vpSize.w,
+                originalViewportHeight: vpSize.h
+            });
+        });
+    }
+
     handleFilesDrop(event) {
         event.stopPropagation();
         event.preventDefault();
         DataProvider.fileList = event.dataTransfer.files;
         DataProvider.loadEventData().then(events => {
-            this.getViewportSize().then(vpSize => {
-                const scaleFactor = this.getScaleFactor(vpSize);
-                this.setState({
-                    eventList: events,
-                    scaleFactor: scaleFactor,
-                    originalViewportWidth: vpSize.w,
-                    originalViewportHeight: vpSize.h
-                });
+            this.setState({
+                eventList: events,
             });
+            this.setViewportSize();
         });
     }
 
@@ -72,7 +87,7 @@ class App extends React.Component {
 
     render() {
         return (
-            <div className="App" onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
+            <div className='App' onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
                 <Viewport pars={this.state} />
             </div>
         );

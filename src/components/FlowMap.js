@@ -1,64 +1,106 @@
-import React from "react";
+/**
+ * Flow map class draws flow map
+ *
+ * CSV event data:
+ * Time, Event, X, Y, Distance, EventWeight, Image, Bookmark, Taskmark
+ *
+ * Supported events:
+ * START STOP
+ * LB_CLICK
+ * LB_DBL_CLICK
+ * LB_DRAG_START
+ * LB_DRAG_END
+ * MB_CLICK
+ * MB_DBL_CLICK
+ * MB_DRAG_START
+ * MB_DRAG_END
+ * RB_CLICK
+ * RB_DBL_CLICK
+ * RB_DRAG_START
+ * RB_DRAG_END
+ * MOUSE_WHEEL_START_SCROLL
+ * MOUSE_WHEEL
+ * MOUSE_WHEEL_END_SCROLL
+ * KEYPRESS
+ */
+import React from 'react';
+
+const EVENTS_TO_DRAW = [
+    'START',
+    'STOP',
+
+    'LB_CLICK',
+    'LB_DBL_CLICK',
+    'LB_DRAG_START',
+    'LB_DRAG_END',
+
+    'MB_CLICK',
+    'MB_DBL_CLICK',
+    'MB_DRAG_START',
+    'MB_DRAG_END',
+
+    'RB_CLICK',
+    'RB_DBL_CLICK',
+    'RB_DRAG_START',
+    'RB_DRAG_END',
+
+    'MOUSE_WHEEL_START_SCROLL',
+    'MOUSE_WHEEL',
+    'MOUSE_WHEEL_END_SCROLL',
+    'KEYPRESS'
+];
 
 export default class FlowMap extends React.Component {
 
     constructor(props) {
         super(props);
-        
     }
 
-    drawSpiderGraph = function showSpiderGraph(sId, start, end) {
+    drawFlowMap() {
 
-        const self = this,
-            session = this.getSessionById(sId);
+        const pars = this.props.pars;
+        if (!pars.eventList.length || !pars.currentFrame) return;
 
-        if (!session) {
+        const data = pars.eventList.slice(0, pars.currentFrame);
+        const scale = pars.scaleFactor;
+        const canvas = this.refs.flowMap;
+        const ctx = canvas.getContext('2d');
 
-            return;
-
-        }
-
-        const cnvh = this.getDomElement('canvasHolder'),
-            data = session.events.slice(start || 0, end || session.events.length),
-            cnv = this.canvas,
-            ctx = cnv.getContext('2d');
-
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
 
         // Draw lines
-        data.forEach(function (e, i, ea) {
+        data.forEach((row, index, events) => {
 
-            const pe = ea[i - 1],
-                pos = self.getTargetScreenPars(e),
-                ppos = pe ? self.getTargetScreenPars(pe) : {},
-                ex = pos.x,
-                ey = pos.y;
+            if (row.Event === 'START') return;
 
-            if (e.type === 'start') {
+            const prevRow = events[index - 1];
+            const prevX = prevRow.X * scale;
+            const prevY = prevRow.Y * scale;
+            const x = row.X * scale;
+            const y = row.Y * scale;
 
-            } else if (e.drag) {
+            if (row.Event === 'LB_DRAG_START') {
 
                 // Draw line to last mouse down position
-                //ctx.lineTo(pe.x, pe.y);
                 ctx.stroke();
                 ctx.save();
 
                 // Draw dashed line from last mouse down position
                 ctx.beginPath();
                 ctx.setLineDash([5, 5]);
-                ctx.moveTo(ppos.x, ppos.y);
-                ctx.lineTo(ex, ey);
+                ctx.moveTo(prevX, prevY);
+                ctx.lineTo(x, y);
                 ctx.stroke();
                 ctx.restore();
 
                 // Begin new path and move start to current mouse position
                 ctx.beginPath();
-                ctx.moveTo(ex, ey);
+                ctx.moveTo(x, y);
 
-            } else if ((pe && !pe.type.match(/wheel|scroll/i)) || !e.type.match(/wheel|scroll/i) || e.index) {
+            } else if ((prevRow && !prevRow.Event.match(/wheel|scroll/i)) || !row.Event.match(/wheel|scroll/i) || row.index) {
 
-                ctx.lineTo(ex, ey);
+                ctx.lineTo(x, y);
 
             }
 
@@ -68,20 +110,19 @@ export default class FlowMap extends React.Component {
         // Draw event pictograms
         ctx.setLineDash([]);
         ctx.beginPath();
-        data.forEach(function (e, i, ea) {
+        data.forEach((row, index, events) => {
 
-            const pe = ea[i - 1],
-                pos = self.getTargetScreenPars(e),
-                ex = pos.x,
-                ey = pos.y;
+            const prevRow = index ? events[index - 1] : null;
+            const x = row.X * scale;
+            const y = row.Y * scale;
 
-            if (!e.type.match(/wheel|scroll/i)) {
+            if (!row.Event.match(/wheel|scroll/i)) {
 
-                self.drawEventPict(ctx, e.type, ex, ey);
+                this.drawEventPict(ctx, row.Event, x, y);
 
-            } else if (!pe || !pe.type.match(/wheel|scroll/i)) {
+            } else if (!prevRow || !prevRow.Event.match(/wheel|scroll/i)) {
 
-                self.drawEventPict(ctx, 'wheel', ex, ey);
+                this.drawEventPict(ctx, 'wheel', x, y);
 
             }
 
@@ -90,33 +131,15 @@ export default class FlowMap extends React.Component {
         ctx.stroke();
         ctx.fill();
 
-        if (start === undefined && end === undefined) {
-
-            /*
-             $(cnvh).show().on('mousemove', {self: this}, function (e) {
-
-             self.showMouseTooltip(e);
-             self.highlightTimeLineEvent(e);
-
-             });
-             */
-            this.canvas.show();
-            session.drawn = true;
-            this.checkRecordCheckbox(sId);
-
-        }
-
-        return this;
-
     };
 
-    drawEventPict = function (ctx, type, x, y) {
+    drawEventPict (ctx, type, x, y) {
 
-        if (this.drawEventList.indexOf(type) > -1) {
+        if (EVENTS_TO_DRAW.indexOf(type) > -1) {
 
             const endAngle = 2 * Math.PI, d = 3;
 
-            if (type === 'start') {
+            if (type.match('_CLICK')) {
 
                 ctx.moveTo(x - 1, y - 3);
                 ctx.lineTo(x - 1, y + 3);
@@ -126,7 +149,7 @@ export default class FlowMap extends React.Component {
                 ctx.moveTo(x + d, y);
                 ctx.arc(x, y, d, 0, endAngle, true);
 
-            } else if (type === 'dblclick') {
+            } else if (type.match('_DBL_CLICK')) {
 
                 const r = d - 1;
                 ctx.moveTo(x + 2 * r, y);
@@ -137,50 +160,33 @@ export default class FlowMap extends React.Component {
                 ctx.moveTo(x + r, y);
                 ctx.arc(x, y, r, 0, endAngle, true);
 
-            } else if (type === 'mousedown') {
+            } else if (type.match('_DRAG_START')) {
 
                 ctx.moveTo(x + 3, y - 2);
                 ctx.lineTo(x, y + 3);
                 ctx.lineTo(x - 3, y - 2);
                 ctx.lineTo(x + 3, y - 2);
 
-            } else if (type === 'mouseup') {
+            } else if (type.match('_DRAG_END')) {
 
                 ctx.moveTo(x - 3, y + 2);
                 ctx.lineTo(x, y - 3);
                 ctx.lineTo(x + 3, y + 2);
                 ctx.lineTo(x - 3, y + 2);
 
-            } else if (type === 'mouseover' || type === 'mouseenter'/* || type === 'mouseout' || type === 'mouseleave'*/) {
-
-                ctx.moveTo(x + 1, y);
-                ctx.arc(x, y, 1, 0, endAngle, true);
-
-            } else if (type.match(/wheel|scroll/i)) {
+            }  else if (type.match('MOUSE_WHEEL')) {
 
                 ctx.moveTo(x - 3, y - 1);
                 ctx.lineTo(x, y - 4);
                 ctx.lineTo(x + 3, y - 1);
-                //ctx.lineTo(x - 3, y - 1);
                 ctx.closePath();
-
-                /*
-                 ctx.moveTo(x + 2, y);
-                 ctx.arc(x, y, 2, 0, endAngle, true);
-                 */
 
                 ctx.moveTo(x - 3, y + 1);
                 ctx.lineTo(x, y + 4);
                 ctx.lineTo(x + 3, y + 1);
-                //ctx.lineTo(x - 3, y + 1);
                 ctx.closePath();
 
-                /*
-                 ctx.strokeRect(x - 3, y - 2, 1.5, 4);
-                 ctx.fillRect(x - 3, y - 2, 1.5, 4);
-                 ctx.strokeRect(x, y - 2, 1.5, 4);
-                 ctx.fillRect(x, y - 2, 1.5, 4);
-                 */
+            } else if (type.match('KEYPRESS')) {
 
             }
 
@@ -193,8 +199,10 @@ export default class FlowMap extends React.Component {
         const scale = pars.scaleFactor;
         const w = pars.originalViewportWidth * scale;
         const h = pars.originalViewportHeight * scale;
-        const canvas = <canvas className="flow-map" width={w} height={h}></canvas>;
+        this.drawFlowMap();
 
-        return canvas;
+        return (
+            <canvas ref="flowMap" className='flow-map' width={w} height={h}></canvas>
+        );
     }
 }
