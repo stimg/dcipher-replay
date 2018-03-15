@@ -1,5 +1,5 @@
 import React from 'react';
-import DataProvider from "./DataProvider";
+import DataProvider from "../classes/DataProvider";
 
 export default class OpenFileButton extends React.Component {
 

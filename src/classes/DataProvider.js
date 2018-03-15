@@ -2,11 +2,13 @@ import CsvParser from './CsvParser';
 
 export default class DataProvider {
 
-    static fileList;
-    static eventList;
+    static fileList = [];
+    static eventList = null;
     static eventsFile = 'events.csv';
 
     static getFrameImageUrl(frameNumber) {
+        if (!DataProvider.eventList || !DataProvider.eventList.length) return null;
+
         const event = DataProvider.eventList[frameNumber];
         const file = DataProvider.findFile(event.Image);
         return window.URL.createObjectURL(file);

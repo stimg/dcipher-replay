@@ -1,7 +1,8 @@
 import React from 'react';
-import DataProvider from './DataProvider';
+import DataProvider from '../classes/DataProvider';
 import FlowMap from './FlowMap';
 import FrameImage from './FrameImage';
+import Timeline from './Timeline';
 
 export default class Viewport extends React.Component {
 
@@ -23,6 +24,7 @@ export default class Viewport extends React.Component {
                 <div className={isReady ? 'hidden' : 'drag-files-msg'}>[ + ] To OPEN project <br/> please select ALL files in the project folder and drag them here</div>
                 <FrameImage pars={pars} />
                 <FlowMap pars={pars} />
+                <Timeline pars={pars}/>
             </div>
         );
     }

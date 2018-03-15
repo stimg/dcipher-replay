@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 
-import DataProvider from './components/DataProvider';
+import DataProvider from './classes/DataProvider';
 import Viewport from './components/Viewport';
 import OpenFileButton from './components/OpenFileButton';
 
@@ -43,13 +43,16 @@ class App extends React.Component {
     getViewportSize() {
         return new Promise((resolve, reject) => {
             const image = new Image();
-            image.src = DataProvider.getFrameImageUrl(0);
-            image.addEventListener('load', () => {
-                resolve({
-                    w: image.naturalWidth,
-                    h: image.naturalHeight
-                });
-            })
+            const url = DataProvider.getFrameImageUrl(0);
+            if (url) {
+                image.src = url;
+                image.addEventListener('load', () => {
+                    resolve({
+                        w: image.naturalWidth,
+                        h: image.naturalHeight
+                    });
+                })
+            } else reject();
         });
     }
 
