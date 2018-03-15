@@ -3,6 +3,7 @@ import './App.css';
 
 import DataProvider from './components/DataProvider';
 import Viewport from './components/Viewport';
+import OpenFileButton from './components/OpenFileButton';
 
 class App extends React.Component {
 
@@ -21,6 +22,7 @@ class App extends React.Component {
 
         this.handleFilesDrop = this.handleFilesDrop.bind(this);
         this.handleFilesDrag = this.handleFilesDrag.bind(this);
+        this.handleOpenFiles = this.handleOpenFiles.bind(this);
         this.keyInputHandler = this.keyInputHandler.bind(this);
 
         window.onkeydown = this.keyInputHandler;
@@ -68,9 +70,17 @@ class App extends React.Component {
     }
 
     handleFilesDrop(event) {
-        event.stopPropagation();
         event.preventDefault();
-        DataProvider.fileList = event.dataTransfer.files;
+        event.stopPropagation();
+        this.initDataSet(event.dataTransfer.files);
+    }
+
+    handleOpenFiles(event) {
+        this.initDataSet(event.target.files);
+    }
+
+    initDataSet(files) {
+        DataProvider.fileList = files;
         DataProvider.loadEventData().then(events => {
             this.getViewportSize().then(vpSize => {
                 this.setState({
@@ -85,8 +95,8 @@ class App extends React.Component {
     }
 
     handleFilesDrag(event) {
-        event.stopPropagation();
         event.preventDefault();
+        event.stopPropagation();
         event.dataTransfer.dropEffect = 'copy';
     }
 
@@ -94,6 +104,7 @@ class App extends React.Component {
         return (
             <div className='App' onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
                 <Viewport pars={this.state} />
+                <OpenFileButton action={this.handleOpenFiles}/>
             </div>
         );
     }

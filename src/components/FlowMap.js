@@ -133,18 +133,26 @@ export default class FlowMap extends React.Component {
         // Draw event icons
         context.setLineDash([]);
         context.lineWidth = this.lineWidth * 2;
-
+        let eType = '';
+        let eCounter = 0;
         data.forEach((row) => {
             const x = row.X * scale;
             const y = row.Y * scale;
 
+            // Count events
+            if (row.Event === eType) eCounter++;
+            else {
+                eCounter = 1;
+                eType = row.Event;
+            }
+
             // Draw icons separately to avoid path merge
-            this.drawEventPict(context, row.Event, x, y);
+            this.drawEventPict(context, row.Event, x, y, eCounter);
         });
 
     };
 
-    drawEventPict(context, type, x, y) {
+    drawEventPict(context, type, x, y, counter) {
 
         if (EVENTS_TO_DRAW.indexOf(type) > -1) {
 
@@ -235,18 +243,33 @@ export default class FlowMap extends React.Component {
 
             } else if (type.match('KEYPRESS')) {
 
-                context.beginPath();
-                context.moveTo(x - 4 * scale, y - 4 * scale);
-                context.lineTo(x - 4 * scale, y + 4 * scale);
-                context.lineTo(x + 4 * scale, y + 4 * scale);
-                context.lineTo(x + 4 * scale, y - 4 * scale);
-                context.lineTo(x - 4 * scale, y - 4 * scale);
-                context.stroke();
-                context.fill();
+                if (counter > 1) {
+                    // draw text
+                    context.save();
+                    context.shadowColor = 'rgba(0, 0, 0, 0)';
+                    context.fillRect(x - 4 * scale, y - 4 * scale, 8 * scale, 8 * scale);
+                    context.fillStyle = 'black';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+                    context.fillText(counter, x, y);
+                    context.restore();
+
+                } else {
+                    // draw icon
+                    context.beginPath();
+                    context.moveTo(x - 4 * scale, y - 4 * scale);
+                    context.lineTo(x - 4 * scale, y + 4 * scale);
+                    context.lineTo(x + 4 * scale, y + 4 * scale);
+                    context.lineTo(x + 4 * scale, y - 4 * scale);
+                    context.lineTo(x - 4 * scale, y - 4 * scale);
+                    context.stroke();
+                    context.fill();
+                }
+
             }
 
             // Draw button text
-            if (type.match('_CLICK')) {
+            if (type.match(/[^L]B_CLICK|[^L]B_DRAG/)) {
                 context.save();
                 context.fillStyle = 'black';
                 context.strokeStyle = 'white';
