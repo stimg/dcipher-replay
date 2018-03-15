@@ -1,6 +1,7 @@
 import React from 'react';
 import DataProvider from './DataProvider';
 import FlowMap from './FlowMap';
+import FrameImage from './FrameImage';
 
 export default class Viewport extends React.Component {
 
@@ -19,7 +20,8 @@ export default class Viewport extends React.Component {
 
         return (
             <div id='viewport' style={{width: pars.originalViewportWidth * scale || '100%', height: pars.originalViewportHeight * scale || '100%'}}>
-                {element}
+                <div className={isReady ? 'hidden' : 'drag-files-msg'}>[ + ] To OPEN project <br/> please select ALL files in the project folder and drag them here</div>
+                <FrameImage pars={pars} />
                 <FlowMap pars={pars} />
             </div>
         );

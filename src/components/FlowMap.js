@@ -132,21 +132,18 @@ export default class FlowMap extends React.Component {
         // Draw event icons
         context.setLineDash([]);
         context.lineWidth = this.lineWidth * 2;
-        context.beginPath();
 
         data.forEach((row) => {
             const x = row.X * scale;
             const y = row.Y * scale;
 
+            // Draw icons separately to avoid path merge
             this.drawEventPict(context, row.Event, x, y);
         });
 
-        context.stroke();
-        context.fill();
-
     };
 
-    drawEventPict(ctx, type, x, y) {
+    drawEventPict(context, type, x, y) {
 
         if (EVENTS_TO_DRAW.indexOf(type) > -1) {
 
@@ -157,67 +154,89 @@ export default class FlowMap extends React.Component {
 
             if (type === 'START') {
 
-                ctx.moveTo(x + lineFix, y - 3 * scale);
-                ctx.lineTo(x + lineFix, y + 3 * scale);
-                ctx.lineTo(x + lineFix + 4 * scale, y);
-                ctx.lineTo(x + lineFix, y - 3 * scale);
+                context.beginPath();
+                context.moveTo(x + lineFix, y - 3 * scale);
+                context.lineTo(x + lineFix, y + 3 * scale);
+                context.lineTo(x + lineFix + 4 * scale, y);
+                context.lineTo(x + lineFix, y - 3 * scale);
+                context.stroke();
+                context.fill();
 
             } else if (type === 'STOP') {
 
-                ctx.moveTo(x - lineFix, y - 3 * scale);
-                ctx.lineTo(x - lineFix, y + 3 * scale);
-                ctx.lineTo(x - lineFix - 4 * scale, y);
-                ctx.lineTo(x - lineFix, y - 3 * scale);
+                context.beginPath();
+                context.moveTo(x - lineFix, y - 3 * scale);
+                context.lineTo(x - lineFix, y + 3 * scale);
+                context.lineTo(x - lineFix - 4 * scale, y);
+                context.lineTo(x - lineFix, y - 3 * scale);
+                context.stroke();
+                context.fill();
 
-            } else if (type.match('_CLICK')) {
+            } else if (type.match('B_CLICK')) {
 
-                ctx.moveTo(x + d, y);
-                ctx.arc(x, y, d, 0, endAngle, true);
+                context.beginPath();
+                context.moveTo(x + d, y);
+                context.arc(x, y, d, 0, endAngle, true);
+                context.stroke();
+                context.fill();
 
-            } else if (type.match('_DBL_CLICK')) {
+            } else if (type.match('B_DBL_CLICK')) {
 
-                const r = d;
-                ctx.moveTo(x + 2 * r, y);
-                ctx.arc(x, y, 2 * r, 0, endAngle, true);
-                ctx.stroke();
-                ctx.fill();
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.arc(x, y, r, 0, endAngle, true);
+                context.beginPath();
+                context.moveTo(x + d, y);
+                context.arc(x, y, d, 0, endAngle, true);
+                context.stroke();
+                context.fill();
+                context.beginPath();
+                context.moveTo(x + lineFix, y);
+                context.arc(x, y, lineFix, 0, endAngle, true);
+                context.stroke();
 
             } else if (type.match('_DRAG_START')) {
 
-                ctx.moveTo(x + 3 * scale, y - 2 * scale);
-                ctx.lineTo(x, y + 3 * scale);
-                ctx.lineTo(x - 3 * scale, y - 2 * scale);
-                ctx.lineTo(x + 3 * scale, y - 2 * scale);
+                context.beginPath();
+                context.moveTo(x + 3 * scale, y - 2 * scale);
+                context.lineTo(x, y + 3 * scale);
+                context.lineTo(x - 3 * scale, y - 2 * scale);
+                context.lineTo(x + 3 * scale, y - 2 * scale);
+                context.stroke();
+                context.fill();
 
             } else if (type.match('_DRAG_END')) {
 
-                ctx.moveTo(x - 3 * scale, y + 2 * scale);
-                ctx.lineTo(x, y - 3 * scale);
-                ctx.lineTo(x + 3 * scale, y + 2 * scale);
-                ctx.lineTo(x - 3 * scale, y + 2 * scale);
+                context.beginPath();
+                context.moveTo(x - 3 * scale, y + 2 * scale);
+                context.lineTo(x, y - 3 * scale);
+                context.lineTo(x + 3 * scale, y + 2 * scale);
+                context.lineTo(x - 3 * scale, y + 2 * scale);
+                context.stroke();
+                context.fill();
 
-            } else if (type.match('MOUSE_WHEEL_END_SCROLL')) {
+            } else if (type.match('MOUSE_WHEEL_START_SCROLL')) {
 
-                ctx.moveTo(x - 4 * scale, y - 3 * scale);
-                ctx.lineTo(x - 4 * scale, y + 3 * scale);
-                ctx.lineTo(x, y);
-                ctx.lineTo(x - 4 * scale, y - 3 * scale);
+                context.beginPath();
+                context.moveTo(x - 4 * scale, y - 3 * scale);
+                context.lineTo(x - 4 * scale, y + 3 * scale);
+                context.lineTo(x, y);
+                context.lineTo(x - 4 * scale, y - 3 * scale);
 
-                ctx.moveTo(x + 4 * scale, y - 3 * scale);
-                ctx.lineTo(x + 4 * scale, y + 3 * scale);
-                ctx.lineTo(x, y);
-                ctx.lineTo(x + 4 * scale, y - 3 * scale);
+                context.moveTo(x + 4 * scale, y - 3 * scale);
+                context.lineTo(x + 4 * scale, y + 3 * scale);
+                context.lineTo(x, y);
+                context.lineTo(x + 4 * scale, y - 3 * scale);
+                context.stroke();
+                context.fill();
 
             } else if (type.match('KEYPRESS')) {
 
-                ctx.moveTo(x - 2 * scale, y - 2 * scale);
-                ctx.lineTo(x - 2 * scale, y + 2 * scale);
-                ctx.lineTo(x + 2 * scale, y + 2 * scale);
-                ctx.lineTo(x + 2 * scale, y - 2 * scale);
-                ctx.lineTo(x - 2 * scale, y - 2 * scale);
+                context.beginPath();
+                context.moveTo(x - 4 * scale, y - 4 * scale);
+                context.lineTo(x - 4 * scale, y + 4 * scale);
+                context.lineTo(x + 4 * scale, y + 4 * scale);
+                context.lineTo(x + 4 * scale, y - 4 * scale);
+                context.lineTo(x - 4 * scale, y - 4 * scale);
+                context.stroke();
+                context.fill();
             }
 
         }
