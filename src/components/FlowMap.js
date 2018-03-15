@@ -71,6 +71,7 @@ export default class FlowMap extends React.Component {
         const canvas = this.refs.flowMap;
         const context = canvas.getContext('2d');
 
+        context.font = 'bold 14px Helvetica';
         context.lineWidth = this.lineWidth;
         context.fillStyle = 'white';
         context.strokeStyle = 'magenta';
@@ -244,6 +245,16 @@ export default class FlowMap extends React.Component {
                 context.fill();
             }
 
+            // Draw button text
+            if (type.match('_CLICK')) {
+                context.save();
+                context.fillStyle = 'black';
+                context.strokeStyle = 'white';
+                context.lineWidth = 1;
+                context.strokeText(type[0], x + 4 * scale, y - 4 * scale);
+                context.fillText(type[0], x + 4 * scale, y - 4 * scale);
+                context.restore();
+            }
         }
 
     };
