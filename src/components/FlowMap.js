@@ -182,15 +182,20 @@ export default class FlowMap extends React.Component {
 
             } else if (type.match('B_DBL_CLICK')) {
 
+                // Outer circle
                 context.beginPath();
                 context.moveTo(x + d, y);
                 context.arc(x, y, d, 0, endAngle, true);
                 context.stroke();
                 context.fill();
+
+                // Inner circle
+                context.shadowColor = 'rgba(0, 0, 0, 0)';
                 context.beginPath();
                 context.moveTo(x + lineFix, y);
                 context.arc(x, y, lineFix, 0, endAngle, true);
                 context.stroke();
+                context.shadowColor = 'rgba(0, 0, 0, 0.3)';
 
             } else if (type.match('_DRAG_START')) {
 
