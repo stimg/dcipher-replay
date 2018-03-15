@@ -1,217 +1,118 @@
 import React from 'react';
+import IconDrawer from '../classes/IconDrawer';
+
+const TIMELINE_HEIGHT = 52;
+const LINE_WIDTH = 4;
+const LINE_WIDTH_CURRENT = 6;
+const ICON_STROKE = 2;
+const ICON_STROKE_CURRENT = 3;
+const FILL_STYLE = '#ffffff';
+const STROKE_STYLE_PREV = '#0073ff';
+const STROKE_STYLE_CURRENT = '#ff0000';
+const STROKE_STYLE_NEXT = '#f732b3';
 
 export default class Timeline extends React.Component {
 
     componentDidUpdate() {
-        // this.drawTimeline();
+        this.drawTimeline();
     }
 
-/*
-    clearTimeline = function clearTimeline() {
+    drawTimeline() {
+        const pars = this.props.pars;
+        const events = pars.eventList;
+        const currentFrame = pars.currentFrame;
+        const duration = events[events.length - 1].Time;
+        const timeUnit = pars.originalViewportWidth * pars.scaleFactor / duration;
+        const y = TIMELINE_HEIGHT / 2;
 
-        var cw = window.innerWidth,
-            $tl = $(this.getDomElement('timeline')),
-            cnv = $('canvas', $tl)[0],
-            ctx = cnv.getContext('2d'),
-            tlh = $tl.height();
+        const canvas = this.refs.timelineCanvas;
+        const context = canvas.getContext('2d');
 
-        ctx.clearRect(0, 0, cw, tlh);
+        context.font = 'bold 14px Helvetica';
+        context.lineWidth = LINE_WIDTH;
+        context.fillStyle = FILL_STYLE;
+        context.lineCap = 'square';
+        context.lineJoin = 'miter';
+        context.miterLimit = 4.0;
 
-    };
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-    resetTimeline = function () {
 
-        this.timeBrackets = [];
-        this.startEventIndex = 0;
-        this.endEventIndex = this.timeLineEvents.length - 1;
-        if (this.activeSession) {
-
-            this.drawTimeline(this.activeSession);
-
-        }
-
-    };
-
-    drawTimeline = function drawTimeline(session) {
-
-        this.showTimelineStat(session);
-
-        var self = this,
-            events = session.events,
-            $tl = $(this.getDomElement('timeline')),
-            cnv = $('canvas', $tl)[0],
-            ctx = cnv.getContext('2d'),
-            cw = window.innerWidth,
-            ch = $tl.height(),
-            offsetRight = $(this.getDomElement('timelineInfo')).width(),
-            offsetLeft = this.timeLineOffsetLeft,
-            offsetTop = ch / 2,
-            cy = window.innerHeight - ch + offsetTop,
-            width = cw - offsetLeft - offsetRight,
-            pxs = width / session.duration,
-            posx = offsetLeft,
-            posx0, pe,
-            showTaskNumber = session.testCaseId !== '',
-            taskNr = 1;
-
-        this.timeLineEvents = [];
-        cnv.width = cw;
-        cnv.height = ch;
-        $(cnv).width(cw);
-        $(cnv).height(ch);
-
-        if (this.endEventIndex) {
-
-            this.drawTLCursor(events[this.endEventIndex].time, session.duration);
-
-        }
-        /!*else {
-
-         this.drawTLCursor(rec.duration, rec.duration);
-
-         }
-         *!/
-        this.drawTLBrackets();
-
-        ctx.lineWidth = 2.0;
-        ctx.fillStyle = 'white';
-        ctx.strokeStyle = session.color;
-        ctx.font = "bold 14px 'Helvetica Neue'";
-        ctx.clearRect(0, 0, cw, ch);
-        ctx.moveTo(offsetLeft, offsetTop);
-        self.drawEventPict(ctx, 'start', offsetLeft, offsetTop);
-        ctx.stroke();
-
-        events.forEach(function (e, i, arr) {
-
-            //console.debug('---> posx:', posx);
-            //console.debug('---> e.time:', e.time);
-
-            if (e.eventNo) {
-
-                pe = arr[i - 1];
-                posx0 = posx;
-                posx = offsetLeft + pxs * e.time;
-
-                self.timeLineEvents.push({
-
-                    type: 'timeline',
-                    clientX: posx,
-                    clientY: cy,
-                    target: $('canvas', '#' + self.domId.timeline)[0],
-                    x: posx,
-                    y: offsetTop,
-                    event: e
-
-                });
-
-                // Draw task number
-                if (showTaskNumber && e.testTaskId !== '' && e.firstInTask) {
-
-                    //var tx = e.testTask.step ? posx : posx0;
-                    var tx = posx;
-                    ctx.save();
-                    ctx.fillStyle = 'gray';
-                    ctx.strokeStyle = 'gray';
-                    ctx.lineWidth = 1.0;
-                    ctx.beginPath();
-                    ctx.moveTo(tx, 0);
-                    ctx.lineTo(tx, ch);
-                    ctx.stroke();
-                    ctx.fillText(taskNr++, tx + 5, ch - 10);
-                    ctx.restore();
-
-                }
-
-                ctx.beginPath();
-                ctx.moveTo(posx0, offsetTop);
-                if (e.drag) {
-
-                    ctx.setLineDash([3, 3]);
-
-                }
-                if (i && e.type.match(/wheel|scroll/i) && pe.type.match(/wheel|scroll/i)) {
-
-                    ctx.setLineDash([1, 2]);
-
-                }
-                ctx.lineTo(posx, offsetTop);
-                ctx.stroke();
-                ctx.setLineDash([]);
-
-                if (i) {
-
-                    ctx.beginPath();
-                    self.drawEventPict(ctx, pe.type, posx0, offsetTop);
-                    ctx.stroke();
-                    ctx.fill();
-
-                }
-
+        if (currentFrame) {
+            // Previous path
+            context.beginPath();
+            context.moveTo(0, y);
+            for (let i = 1; i < currentFrame; i++) {
+                this.drawTimePath(context, i, STROKE_STYLE_PREV);
             }
+            context.stroke();
+
+            // Current path
+            context.beginPath();
+            context.moveTo(events[currentFrame - 1].Time * timeUnit, y);
+            this.drawTimePath(context, currentFrame, STROKE_STYLE_CURRENT, LINE_WIDTH_CURRENT);
+            context.stroke();
+        }
+
+        // Next path
+        context.beginPath();
+        context.moveTo(events[currentFrame].Time * timeUnit, y);
+        for (let i = currentFrame + 1; i < events.length; i++) {
+            this.drawTimePath(context, i, STROKE_STYLE_NEXT);
+        }
+        context.stroke();
+
+        const iconDrawer = new IconDrawer();
+        events.forEach((row, index) => {
+            const x = row.Time * timeUnit;
+            iconDrawer.setLineWidth(index === currentFrame ? ICON_STROKE_CURRENT : ICON_STROKE);
+            iconDrawer.setStrokeStyle(index < currentFrame ? STROKE_STYLE_PREV : index === currentFrame ? STROKE_STYLE_CURRENT : STROKE_STYLE_NEXT);
+            iconDrawer.drawEventIcon(context, row.Event, x, y);
         });
+    }
 
-        // Draw last task line
-        ctx.save();
-        ctx.lineWidth = 1.0;
-        ctx.strokeStyle = 'gray';
-        ctx.beginPath();
-        ctx.moveTo(posx, 0);
-        ctx.lineTo(posx, ch);
-        ctx.stroke();
-        ctx.restore();
+    drawTimePath(context, index, lineColor, lineWidth = LINE_WIDTH) {
 
-        // Draw last event pict
-        ctx.beginPath();
-        self.drawEventPict(ctx, events[events.length - 1].type, posx, offsetTop);
-        ctx.stroke();
-        ctx.fill();
+        const y = TIMELINE_HEIGHT / 2;
+        const pars = this.props.pars;
+        const events = pars.eventList;
+        const duration = events[events.length - 1].Time;
+        const timeUnit = pars.originalViewportWidth * pars.scaleFactor / duration;
+        const row = events[index];
+        const x = row.Time * timeUnit;
+        const prevX = events[index - 1].Time * timeUnit;
 
-        $tl.show();
+        context.strokeStyle = lineColor;
+        context.lineWidth = lineWidth;
 
-    };
+        if (row.Event.match('_DRAG_END')) {
 
-    drawTLCursor = function (pos, total) {
+            context.stroke();
+            context.save();
 
-        var pars = this.getTimeLineCursorPars(pos, total);
+            context.beginPath();
+            context.setLineDash([lineWidth / 2, lineWidth * 2]);
+            context.moveTo(prevX, y);
+            context.lineTo(x, y);
+            context.stroke();
+            context.restore();
 
-        $(this.getDomElement('timelineCursor')).css(pars).show();
+            // Begin new path and move start to current mouse position
+            context.beginPath();
+            context.moveTo(x, y);
 
-    };
+        } else context.lineTo(x, y);
+    }
 
-    drawTLBrackets = function (time1, time2) {
-
-        var t1 = time1 !== undefined ? time1 : this.timeBrackets[0] !== undefined ? this.timeBrackets[0] : 0,
-            t2 = time2 !== undefined ? time2 : this.timeBrackets[1] !== undefined ? this.timeBrackets[1] : this.activeSession.duration,
-            pars = this.getTimeLineBracketsPars(t1, t2);
-
-        $(this.getDomElement('timelineBrackets')).css(pars).show();
-
-    };
-
-    showTimelineStat = function (session) {
-
-        var loc = this.loc,
-            html = Math.round(session.duration / 1000) + '<span>' + loc.sec + '</span> '
-                   + ((session.eventsStat.click || 0) + (session.eventsStat.drag || 0) + (session.eventsStat.wheel || 0)) + '<span>' + loc.evs + '</span>'
-                   + session.mouseMilesTotal.toFixed(1) + '<span>' + loc.mm + '</span>'
-                   + session.kpi.toFixed(1) + '<span>' + loc.kpi + '</span>';
-
-        $(this.getDomElement('timelineInfo')).html(html);
-
-    };
-*/
-
-    render () {
-        const th = 52;
+    render() {
         const pars = this.props.pars;
         const scale = pars.scaleFactor;
         const w = pars.originalViewportWidth * scale;
         const h = pars.originalViewportHeight * scale;
 
         return (
-            <div id="timeline" style={{width: w+'px', height: th + 'px', top: h - 1 + 'px'}}>
-                <canvas ref="timelineCanvas" className='timeline' width={w} height={th}></canvas>
+            <div id="timeline" style={{width: w + 'px', height: TIMELINE_HEIGHT + 'px', top: h - 1 + 'px'}}>
+                <canvas ref="timelineCanvas" className='timeline' width={w} height={TIMELINE_HEIGHT}></canvas>
             </div>
         );
     }

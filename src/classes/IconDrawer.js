@@ -1,5 +1,7 @@
 const END_ANGLE = 2 * Math.PI;
 const SCALE = 2;
+const CLICK_DIAMETER = 6;
+const FONT = 'bold 14px Helvetica';
 
 const EVENTS_TO_DRAW = [
     'START',
@@ -26,24 +28,28 @@ const EVENTS_TO_DRAW = [
     'KEYPRESS'
 ];
 
-const themes = {
-    default: {
-        font: 'bold 14px Helvetica',
-        lineWidth: 4,
-        fillStyle: 'white',
-        strokeStyle: 'magenta',
-        clickDiameter: 6
-    }
-};
-
 export default class IconDrawer {
 
-    constructor(theme = 'default') {
-        this.theme = themes[theme];
+    constructor(lineWidth = 2, strokeStyle = '#f732b3', fillStyle = '#ffffff') {
+        this.lineWidth = lineWidth * 2;
+        this.strokeStyle = strokeStyle;
+        this.fillStyle = fillStyle;
+    }
+
+    setLineWidth(lineWidth) {
+        this.lineWidth = lineWidth * 2;
+    }
+
+    setStrokeStyle(strokeStyle) {
+        this.strokeStyle = strokeStyle;
+    }
+
+    setFillStyle(fillStyle) {
+        this.fillStyle = fillStyle;
     }
 
     drawStartIcon(context, type, x, y) {
-        const lineFix = this.theme.lineWidth / 2;
+        const lineFix = this.lineWidth / 2;
 
         context.beginPath();
         context.moveTo(x + lineFix, y - 3 * SCALE);
@@ -55,7 +61,7 @@ export default class IconDrawer {
     }
 
     drawStopIcon(context, type, x, y) {
-        const lineFix = this.theme.lineWidth / 2;
+        const lineFix = this.lineWidth / 2;
 
         context.beginPath();
         context.moveTo(x - lineFix, y - 3 * SCALE);
@@ -67,7 +73,7 @@ export default class IconDrawer {
     }
 
     drawClickIcon(context, type, x, y) {
-        const d = this.theme.clickDiameter;
+        const d = CLICK_DIAMETER;
 
         context.beginPath();
         context.moveTo(x + d, y);
@@ -78,8 +84,8 @@ export default class IconDrawer {
     }
 
     drawDblClickIcon(context, type, x, y) {
-        const d = this.theme.clickDiameter;
-        const lineFix = this.theme.lineWidth / 2;
+        const d = CLICK_DIAMETER;
+        const lineFix = this.lineWidth / 2;
 
         // Outer circle
         context.beginPath();
@@ -171,10 +177,10 @@ export default class IconDrawer {
         context.save();
 
         context.setLineDash([]);
-        context.font = this.theme.font;
-        context.lineWidth = this.theme.lineWidth;
-        context.fillStyle = this.theme.fillStyle;
-        context.strokeStyle = this.theme.strokeStyle;
+        context.font = FONT;
+        context.lineWidth = this.lineWidth;
+        context.fillStyle = this.fillStyle;
+        context.strokeStyle = this.strokeStyle;
 
         if (type === 'START') this.drawStartIcon(context, type, x, y);
         else if (type === 'STOP') this.drawStopIcon(context, type, x, y);
