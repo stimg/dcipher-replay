@@ -127,12 +127,25 @@ export default class IconDrawer {
         this.drawMouseButtonLetter(context, type, x, y);
     }
 
-    drawMouseWheelIcon(context, type, x, y) {
+    drawMouseWheelStartIcon(context, type, x, y) {
+        const lineFix = this.lineWidth / 2;
+
         context.beginPath();
-        context.moveTo(x - 4 * SCALE, y - 3 * SCALE);
-        context.lineTo(x - 4 * SCALE, y + 3 * SCALE);
-        context.lineTo(x + 4 * SCALE, y - 3 * SCALE);
-        context.lineTo(x + 4 * SCALE, y + 3 * SCALE);
+        context.moveTo(x + lineFix + 3 * SCALE, y - 3 * SCALE);
+        context.lineTo(x + lineFix + 3 * SCALE, y + 3 * SCALE);
+        context.lineTo(x + lineFix, y);
+        context.closePath();
+        context.stroke();
+        context.fill();
+    }
+
+    drawMouseWheelEndIcon(context, type, x, y) {
+        const lineFix = this.lineWidth / 2;
+
+        context.beginPath();
+        context.moveTo(x - lineFix - 3 * SCALE, y - 3 * SCALE);
+        context.lineTo(x - lineFix - 3 * SCALE, y + 3 * SCALE);
+        context.lineTo(x - lineFix, y);
         context.closePath();
         context.stroke();
         context.fill();
@@ -142,19 +155,20 @@ export default class IconDrawer {
         if (counter > 1) {
             // draw text
             context.shadowColor = 'rgba(0, 0, 0, 0)';
-            context.fillRect(x - 4 * SCALE, y - 4 * SCALE, 8 * SCALE, 8 * SCALE);
+            context.fillRect(x - 3 * SCALE, y - 3 * SCALE, 6 * SCALE, 6 * SCALE);
             context.fillStyle = 'black';
             context.textAlign = 'center';
             context.textBaseline = 'middle';
+            context.font = '12px Helvetica';
             context.fillText(counter, x, y);
 
         } else {
             // draw icon
             context.beginPath();
-            context.moveTo(x - 4 * SCALE, y - 4 * SCALE);
-            context.lineTo(x - 4 * SCALE, y + 4 * SCALE);
-            context.lineTo(x + 4 * SCALE, y + 4 * SCALE);
-            context.lineTo(x + 4 * SCALE, y - 4 * SCALE);
+            context.moveTo(x - 3 * SCALE, y - 3 * SCALE);
+            context.lineTo(x - 3 * SCALE, y + 3 * SCALE);
+            context.lineTo(x + 3 * SCALE, y + 3 * SCALE);
+            context.lineTo(x + 3 * SCALE, y - 3 * SCALE);
             context.closePath();
             context.stroke();
             context.fill();
@@ -188,7 +202,8 @@ export default class IconDrawer {
         else if (type.match('B_DBL_CLICK')) this.drawDblClickIcon(context, type, x, y);
         else if (type.match('_DRAG_START')) this.drawDragStartIcon(context, type, x, y);
         else if (type.match('_DRAG_END')) this.drawDragEndIcon(context, type, x, y);
-        else if (type.match('MOUSE_WHEEL_START_SCROLL')) this.drawMouseWheelIcon(context, type, x, y);
+        else if (type.match('MOUSE_WHEEL_START_SCROLL')) this.drawMouseWheelStartIcon(context, type, x, y, counter);
+        else if (type.match('MOUSE_WHEEL_END_SCROLL')) this.drawMouseWheelEndIcon(context, type, x, y, counter);
         else if (type.match('KEYPRESS')) this.drawKeyPressIcon(context, type, x, y, counter);
 
         context.restore();

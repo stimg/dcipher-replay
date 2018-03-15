@@ -85,7 +85,7 @@ export default class Timeline extends React.Component {
         context.strokeStyle = lineColor;
         context.lineWidth = lineWidth;
 
-        if (row.Event.match('_DRAG_END')) {
+        if (row.Event.match(/_DRAG_END|MOUSE_WHEEL_END/)) {
 
             context.stroke();
             context.save();
