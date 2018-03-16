@@ -21,6 +21,7 @@ export default class Timeline extends React.Component {
 
     componentDidUpdate() {
         this.drawTimeline();
+        this.moveTimeCursor();
     }
 
     drawTimeline() {
@@ -81,6 +82,16 @@ export default class Timeline extends React.Component {
         });
     }
 
+    moveTimeCursor() {
+        const pars = this.props.pars;
+        const currentFrame = pars.currentFrame;
+        const events = pars.eventList;
+        const duration = events[events.length - 1].Time;
+        const timeUnit = pars.originalViewportWidth * pars.scaleFactor / duration;
+
+        this.refs.timeCursor.style.left = events[currentFrame].Time * timeUnit + 'px';
+    }
+
     drawTimePath(context, index) {
 
         const pars = this.props.pars;
@@ -122,6 +133,7 @@ export default class Timeline extends React.Component {
         return (
             <div id="timeline" style={{width: w + 'px', height: th + 'px', top: h - 1 + 'px'}}>
                 <canvas ref="timelineCanvas" className='timeline' width={w} height={th}></canvas>
+                <div ref="timeCursor" className="time-cursor"  style={{height: th + 'px'}}></div>
             </div>
         );
     }

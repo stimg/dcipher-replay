@@ -52,9 +52,9 @@ export default class IconDrawer {
         const lineFix = this.lineWidth / 2;
 
         context.beginPath();
-        context.moveTo(x + lineFix, y - 3 * SCALE);
-        context.lineTo(x + lineFix, y + 3 * SCALE);
-        context.lineTo(x + lineFix + 4 * SCALE, y);
+        context.moveTo(x + lineFix, y - 2.5 * SCALE);
+        context.lineTo(x + lineFix, y + 2.5 * SCALE);
+        context.lineTo(x + lineFix + 3 * SCALE, y);
         context.closePath();
         context.stroke();
         context.fill();
@@ -64,9 +64,9 @@ export default class IconDrawer {
         const lineFix = this.lineWidth / 2;
 
         context.beginPath();
-        context.moveTo(x - lineFix, y - 3 * SCALE);
-        context.lineTo(x - lineFix, y + 3 * SCALE);
-        context.lineTo(x - lineFix - 4 * SCALE, y);
+        context.moveTo(x - lineFix, y - 2 * SCALE);
+        context.lineTo(x - lineFix, y + 2 * SCALE);
+        context.lineTo(x - lineFix - 3 * SCALE, y);
         context.closePath();
         context.stroke();
         context.fill();
@@ -85,7 +85,6 @@ export default class IconDrawer {
 
     drawDblClickIcon(context, type, x, y) {
         const d = CLICK_DIAMETER;
-        const lineFix = this.lineWidth / 2;
 
         // Outer circle
         context.beginPath();
@@ -95,10 +94,11 @@ export default class IconDrawer {
         context.fill();
 
         // Inner circle
+        context.lineWidth = 4;
         context.shadowColor = 'rgba(0, 0, 0, 0)';
         context.beginPath();
-        context.moveTo(x + lineFix, y);
-        context.arc(x, y, lineFix, 0, END_ANGLE, true);
+        context.moveTo(x + 2, y);
+        context.arc(x, y, 2, 0, END_ANGLE, true);
         context.stroke();
         context.shadowColor = 'rgba(0, 0, 0, 0.3)';
 
@@ -131,8 +131,8 @@ export default class IconDrawer {
         const lineFix = this.lineWidth / 2;
 
         context.beginPath();
-        context.moveTo(x + lineFix + 3 * SCALE, y - 3 * SCALE);
-        context.lineTo(x + lineFix + 3 * SCALE, y + 3 * SCALE);
+        context.moveTo(x + lineFix + 3 * SCALE, y - 2.5 * SCALE);
+        context.lineTo(x + lineFix + 3 * SCALE, y + 2.5 * SCALE);
         context.lineTo(x + lineFix, y);
         context.closePath();
         context.stroke();
@@ -143,8 +143,8 @@ export default class IconDrawer {
         const lineFix = this.lineWidth / 2;
 
         context.beginPath();
-        context.moveTo(x - lineFix - 3 * SCALE, y - 3 * SCALE);
-        context.lineTo(x - lineFix - 3 * SCALE, y + 3 * SCALE);
+        context.moveTo(x - lineFix - 3 * SCALE, y - 2.5 * SCALE);
+        context.lineTo(x - lineFix - 3 * SCALE, y + 2.5 * SCALE);
         context.lineTo(x - lineFix, y);
         context.closePath();
         context.stroke();
