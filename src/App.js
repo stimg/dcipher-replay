@@ -12,6 +12,10 @@ class App extends React.Component {
     constructor(props) {
         super(props);
 
+        this.config = {
+            timelineHeight: 52
+        };
+
         this.state = {
             eventList: [],
             scaleFactor: 1,
@@ -58,8 +62,8 @@ class App extends React.Component {
 
     getScaleFactor(vpSize) {
         const w = window.innerWidth;
-        const h = window.innerHeight;
-        return Math.min(w / vpSize.w, h / vpSize.h);
+        const h = window.innerHeight - this.config.timelineHeight;
+        return Math.min(w / vpSize.w, h / vpSize.h );
     }
 
     setViewportSize() {
@@ -106,7 +110,7 @@ class App extends React.Component {
     render() {
         return (
             <div className='App' onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
-                <Viewport pars={this.state} />
+                <Viewport pars={this.state} config={this.config}/>
                 <OpenFileButton action={this.handleOpenFiles}/>
             </div>
         );
@@ -132,7 +136,5 @@ class App extends React.Component {
         }
     }
 }
-
-App.config = {};
 
 export default App;

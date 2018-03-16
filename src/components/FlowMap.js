@@ -30,6 +30,7 @@ export default class FlowMap extends React.Component {
 
     constructor(props) {
         super(props);
+        this.config = props.config;
         this.lineWidth = 2;
         this.iconDrawer = new IconDrawer();
     }
