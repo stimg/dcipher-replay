@@ -26,12 +26,21 @@
 import React from 'react';
 import IconDrawer from '../classes/IconDrawer';
 
+const LINE_WIDTH_BEFORE = 4;
+const LINE_WIDTH_AFTER = 2;
+const LINE_WIDTH_CURRENT = 6;
+const ICON_STROKE = 2;
+const ICON_STROKE_CURRENT = 3;
+const FILL_STYLE = '#ffffff';
+const STROKE_STYLE_BEFORE = '#f732b3';
+const STROKE_STYLE_CURRENT = '#ff0000';
+const STROKE_STYLE_AFTER = '#0073ff';
+
 export default class FlowMap extends React.Component {
 
     constructor(props) {
         super(props);
         this.config = props.config;
-        this.lineWidth = 2;
         this.iconDrawer = new IconDrawer();
     }
 
@@ -42,6 +51,7 @@ export default class FlowMap extends React.Component {
     drawFlowMap() {
 
         const pars = this.props.pars;
+        const currentFrame = pars.currentFrame;
         if (!pars.eventList.length) return;
 
         const data = pars.eventList.slice(0, pars.currentFrame + 1);
@@ -50,9 +60,10 @@ export default class FlowMap extends React.Component {
         const context = canvas.getContext('2d');
 
         context.font = 'bold 14px Helvetica';
-        context.lineWidth = this.lineWidth;
-        context.fillStyle = 'white';
-        context.strokeStyle = 'magenta';
+        context.lineWidth = LINE_WIDTH_AFTER;
+        context.fillStyle = FILL_STYLE;
+        context.strokeStyle = STROKE_STYLE_BEFORE;
+
         context.lineCap = 'butt';
         context.lineJoin = 'miter';
         context.miterLimit = 4.0;
@@ -111,7 +122,7 @@ export default class FlowMap extends React.Component {
         // Draw event icons
         let eType = '';
         let eCounter = 0;
-        data.forEach((row) => {
+        data.forEach((row, index) => {
             const x = row.X * scale;
             const y = row.Y * scale;
 
@@ -121,6 +132,8 @@ export default class FlowMap extends React.Component {
                 eCounter = 1;
                 eType = row.Event;
             }
+            this.iconDrawer.setLineWidth(index === currentFrame ? ICON_STROKE_CURRENT : ICON_STROKE);
+            this.iconDrawer.setStrokeStyle(index < currentFrame ? STROKE_STYLE_BEFORE : index === currentFrame ? STROKE_STYLE_CURRENT : STROKE_STYLE_AFTER);
             this.iconDrawer.drawEventIcon(context, row.Event, x, y, eCounter);
         });
 

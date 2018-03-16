@@ -21,8 +21,6 @@ export default class FrameImage extends React.Component {
     }
 
     render() {
-        const pars = this.props.pars;const isReady = !!pars.eventList.length;
-
         return (
             <div ref="FrameImageContainer" className="frame-image-container"></div>
         );

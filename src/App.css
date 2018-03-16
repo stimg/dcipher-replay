@@ -21,7 +21,7 @@ input {
 
 
 #timeline {
-  position: fixed;
+  position: absolute;
   left: 0;
   bottom: 0;
   z-index: 1000000;
@@ -36,6 +36,34 @@ input {
   width: 2px;
   background-color: rgba(255, 255, 255, 0.7);
   box-shadow: 1px 0 3px 0 rgba(0, 0, 0, 0.24)
+}
+
+.time-brackets {
+  position: absolute;
+  top: 0;
+  height: 52px;
+  width: 520px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-right: solid 1px white;
+  border-left: solid 1px white
+}
+
+.left-bracket, .right-bracket {
+  position: absolute;
+  top: 0;
+  cursor: ew-resize;
+  width: 10px;
+  height: inherit;
+  margin: 0;
+  padding: 0
+}
+
+.right-bracket {
+  margin-right: -6px
+}
+
+.left-bracket {
+  margin-left: -5px
 }
 
 .frame-image-container, .frame-image {
@@ -71,13 +99,6 @@ input {
   text-align: center;
   margin-top: 40vh;
   line-height: 2em;
-}
-
-.top-menu {
-  position: fixed;
-  z-index: 1000001;
-  left: 0;
-  bottom: 0
 }
 
 .btn {

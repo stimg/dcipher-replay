@@ -1,5 +1,6 @@
 import React from 'react';
 import IconDrawer from '../classes/IconDrawer';
+import Draggable from 'react-draggable';
 
 const LINE_WIDTH_BEFORE = 4;
 const LINE_WIDTH_AFTER = 4;
@@ -17,6 +18,7 @@ export default class Timeline extends React.Component {
         super(props);
         this.config = props.config;
         this.iconDrawer = new IconDrawer();
+        this.handleBracketDrag = this.handleBracketDrag.bind(this);
     }
 
     componentDidUpdate() {
@@ -87,9 +89,10 @@ export default class Timeline extends React.Component {
         const currentFrame = pars.currentFrame;
         const events = pars.eventList;
         const duration = events[events.length - 1].Time;
-        const timeUnit = pars.originalViewportWidth * pars.scaleFactor / duration;
+        const timeUnit = (pars.originalViewportWidth * pars.scaleFactor - this.config.timeCursorWidth) / duration;
+        const x = events[currentFrame].Time * timeUnit;
 
-        this.refs.timeCursor.style.left = events[currentFrame].Time * timeUnit + 'px';
+        this.refs.timeCursor.style.left = x + 'px';
     }
 
     drawTimePath(context, index) {
@@ -123,17 +126,54 @@ export default class Timeline extends React.Component {
         } else context.lineTo(x, y);
     }
 
+    handleBracketDrag(e, ui) {
+        const timeBrackets = this.refs.timeBrackets;
+        const rect = this.refs.leftBracket.getBoundingClientRect();
+        const left = rect.x;
+        const width = this.refs.rightBracket.getBoundingClientRect().x - left;
+
+        timeBrackets.style.left = left + rect.width / 2 + 'px';
+        timeBrackets.style.width = width + 'px';
+    }
+
     render() {
         const pars = this.props.pars;
+        const isReady = pars.eventList.length > 0;
         const scale = pars.scaleFactor;
         const w = pars.originalViewportWidth * scale;
         const h = pars.originalViewportHeight * scale;
         const th = this.config.timelineHeight;
+        const tcw = this.config.timeCursorWidth;
 
         return (
-            <div id="timeline" style={{width: w + 'px', height: th + 'px', top: h - 1 + 'px'}}>
+            <div id="timeline" className={isReady ? '' : 'hidden'} style={{width: w + 'px', height: th + 'px', top: h - 1 + 'px'}}>
                 <canvas ref="timelineCanvas" className='timeline' width={w} height={th}></canvas>
-                <div ref="timeCursor" className="time-cursor"  style={{height: th + 'px'}}></div>
+                <div ref="timeBrackets" className='time-brackets' style={{width: tcw + 'px', height: th + 'px', width: w}}></div>
+                <Draggable
+                    axis="x"
+                    bounds="#timeline"
+                    handle=".left-bracket"
+                    defaultPosition={{x: 0, y: 0}}
+                    position={null}
+                    grid={[1, 1]}
+                    onStart={this.handleStart}
+                    onDrag={this.handleBracketDrag}
+                    onStop={this.handleStop}>
+                    <div ref="leftBracket" className="left-bracket"></div>
+                </Draggable>
+                <Draggable
+                    axis="x"
+                    bounds="#timeline"
+                    handle=".right-bracket"
+                    defaultPosition={{x: 0, y: 0}}
+                    position={null}
+                    grid={[1, 1]}
+                    onStart={this.handleStart}
+                    onDrag={this.handleBracketDrag}
+                    onStop={this.handleStop}>
+                    <div ref="rightBracket" className="right-bracket" style={{left: w - 10}}></div>
+                </Draggable>
+                <div ref="timeCursor" className="time-cursor"  style={{width: tcw + 'px', height: th + 'px'}}></div>
             </div>
         );
     }

@@ -13,15 +13,16 @@ class App extends React.Component {
         super(props);
 
         this.config = {
-            timelineHeight: 52
+            timelineHeight: 52,
+            timeCursorWidth: 2
         };
 
         this.state = {
             eventList: [],
             scaleFactor: 1,
             currentFrame: 0,
-            originalViewportWidth: 0,
-            originalViewportHeight: 0
+            originalViewportWidth: window.innerWidth,
+            originalViewportHeight: window.innerHeight
         };
 
         this.handleFilesDrop = this.handleFilesDrop.bind(this);
