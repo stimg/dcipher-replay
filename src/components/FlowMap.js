@@ -52,7 +52,7 @@ export default class FlowMap extends React.Component {
         context.lineWidth = this.lineWidth;
         context.fillStyle = 'white';
         context.strokeStyle = 'magenta';
-        context.lineCap = 'square';
+        context.lineCap = 'butt';
         context.lineJoin = 'miter';
         context.miterLimit = 4.0;
         context.shadowOffsetX = 0;

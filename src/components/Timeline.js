@@ -2,7 +2,8 @@ import React from 'react';
 import IconDrawer from '../classes/IconDrawer';
 
 const TIMELINE_HEIGHT = 52;
-const LINE_WIDTH = 4;
+const LINE_WIDTH_BEFORE = 4;
+const LINE_WIDTH_AFTER = 4;
 const LINE_WIDTH_CURRENT = 6;
 const ICON_STROKE = 2;
 const ICON_STROKE_CURRENT = 3;
@@ -29,9 +30,8 @@ export default class Timeline extends React.Component {
         const context = canvas.getContext('2d');
 
         context.font = 'bold 14px Helvetica';
-        context.lineWidth = LINE_WIDTH;
         context.fillStyle = FILL_STYLE;
-        context.lineCap = 'square';
+        context.lineCap = 'butt';
         context.lineJoin = 'miter';
         context.miterLimit = 4.0;
 
@@ -40,6 +40,7 @@ export default class Timeline extends React.Component {
 
         if (currentFrame) {
             // Previous path
+            context.lineWidth = LINE_WIDTH_BEFORE;
             context.beginPath();
             context.moveTo(0, y);
             for (let i = 1; i < currentFrame; i++) {
@@ -56,6 +57,7 @@ export default class Timeline extends React.Component {
 
         // Next path
         context.beginPath();
+        context.lineWidth = LINE_WIDTH_AFTER;
         context.moveTo(events[currentFrame].Time * timeUnit, y);
         for (let i = currentFrame + 1; i < events.length; i++) {
             this.drawTimePath(context, i, STROKE_STYLE_NEXT);
@@ -91,7 +93,7 @@ export default class Timeline extends React.Component {
             context.save();
 
             context.beginPath();
-            context.setLineDash([lineWidth / 2, lineWidth * 2]);
+            context.setLineDash([lineWidth, lineWidth]);
             context.moveTo(prevX, y);
             context.lineTo(x, y);
             context.stroke();
