@@ -21,7 +21,7 @@ export default class Viewport extends React.Component {
                 <div className={isReady ? 'hidden' : 'drag-files-msg'}>[ + ] To OPEN project <br/> please select ALL files in the project folder and drag them here</div>
                 <FrameImage pars={pars} />
                 <FlowMap pars={pars} config={this.config} />
-                <Timeline pars={pars} config={this.config} />
+                <Timeline pars={pars} config={this.config} timeBracketsUpdated={this.props.timeBracketsUpdated} />
             </div>
         );
     }

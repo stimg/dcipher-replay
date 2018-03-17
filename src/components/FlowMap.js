@@ -52,9 +52,10 @@ export default class FlowMap extends React.Component {
 
         const pars = this.props.pars;
         const currentFrame = pars.currentFrame;
+        const timeBrackets = pars.timeBrackets;
         if (!pars.eventList.length) return;
 
-        const data = pars.eventList.slice(0, pars.currentFrame + 1);
+        const data = pars.eventList.filter(event => parseInt(event.Time) >= timeBrackets[0] && parseInt(event.Time) <= timeBrackets[1]);
         const scale = pars.scaleFactor;
         const canvas = this.refs.flowMap;
         const context = canvas.getContext('2d');
@@ -88,10 +89,10 @@ export default class FlowMap extends React.Component {
             } else {
 
                 const prevRow = events[index - 1];
-                const prevX = prevRow.X * scale;
-                const prevY = prevRow.Y * scale;
 
-                if (row.Event.match('_DRAG_END')) {
+                if (row.Event.match('_DRAG_END') && prevRow) {
+                    const prevX = prevRow.X * scale;
+                    const prevY = prevRow.Y * scale;
 
                     // Draw line to last mouse down position
                     context.stroke();

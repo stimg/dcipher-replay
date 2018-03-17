@@ -4,6 +4,7 @@ import './App.css';
 import DataProvider from './classes/DataProvider';
 import Viewport from './components/Viewport';
 import OpenFileButton from './components/OpenFileButton';
+import Timeline from './components/Timeline';
 
 class App extends React.Component {
 
@@ -18,9 +19,11 @@ class App extends React.Component {
         };
 
         this.state = {
+            stateChangeType: '', // TODO: make enum state update type
             eventList: [],
             scaleFactor: 1,
             currentFrame: 0,
+            timeBrackets: [],
             originalViewportWidth: window.innerWidth,
             originalViewportHeight: window.innerHeight
         };
@@ -28,6 +31,7 @@ class App extends React.Component {
         this.handleFilesDrop = this.handleFilesDrop.bind(this);
         this.handleFilesDrag = this.handleFilesDrag.bind(this);
         this.handleOpenFiles = this.handleOpenFiles.bind(this);
+        this.handleTimeBracketsUpdate = this.handleTimeBracketsUpdate.bind(this);
         this.keyInputHandler = this.keyInputHandler.bind(this);
 
         window.onkeydown = this.keyInputHandler;
@@ -70,6 +74,7 @@ class App extends React.Component {
     setViewportSize() {
         this.getViewportSize().then(vpSize => {
             this.setState({
+                stateChangeType: 'viewportSizeChanged',
                 scaleFactor: this.getScaleFactor(vpSize),
                 originalViewportWidth: vpSize.w,
                 originalViewportHeight: vpSize.h
@@ -87,16 +92,25 @@ class App extends React.Component {
         this.initDataSet(event.target.files);
     }
 
+    handleTimeBracketsUpdate(timeBrackets) {
+        this.setState({
+            stateChangeType: 'timeBracketsUpdated',
+            timeBrackets: timeBrackets
+        });
+    }
+
     initDataSet(files) {
         DataProvider.fileList = files;
         DataProvider.loadEventData().then(events => {
             this.getViewportSize().then(vpSize => {
                 this.setState({
+                    stateChangeType: 'newDataSetLoaded',
                     eventList: events,
                     currentFrame: 0,
                     scaleFactor: this.getScaleFactor(vpSize),
                     originalViewportWidth: vpSize.w,
-                    originalViewportHeight: vpSize.h
+                    originalViewportHeight: vpSize.h,
+                    timeBrackets: [0, parseInt(events[events.length - 1].Time)]
                 });
             });
         });
@@ -111,7 +125,7 @@ class App extends React.Component {
     render() {
         return (
             <div className='App' onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
-                <Viewport pars={this.state} config={this.config}/>
+                <Viewport pars={this.state} config={this.config} timeBracketsUpdated={this.handleTimeBracketsUpdate} />
                 <OpenFileButton action={this.handleOpenFiles}/>
             </div>
         );
@@ -126,11 +140,13 @@ class App extends React.Component {
         switch (keyCode) {
             case 37:
                 this.setState({
+                    stateChangeType: 'timeFrameChanged',
                     currentFrame: cFrame > 1 ? cFrame - 1 : 0
                 });
                 break;
             case 39:
                 this.setState({
+                    stateChangeType: 'timeFrameChanged',
                     currentFrame: cFrame < eLen ? cFrame + 1 : eLen
                 });
                 break;

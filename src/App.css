@@ -53,17 +53,18 @@ input {
   top: 0;
   cursor: ew-resize;
   width: 10px;
+  background-color: rgba(255, 0, 0, 0.5);
   height: inherit;
   margin: 0;
   padding: 0
 }
 
 .right-bracket {
-  margin-right: -6px
+  margin-left: -5px;
 }
 
 .left-bracket {
-  margin-left: -5px
+  margin-left: 0;
 }
 
 .frame-image-container, .frame-image {
