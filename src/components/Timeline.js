@@ -1,6 +1,5 @@
 import React from 'react';
 import IconDrawer from '../classes/IconDrawer';
-import Draggable from 'react-draggable';
 
 const LINE_WIDTH_BEFORE = 4;
 const LINE_WIDTH_AFTER = 4;
