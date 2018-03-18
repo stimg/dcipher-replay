@@ -30,7 +30,7 @@ const LINE_WIDTH_BEFORE = 4;
 const LINE_WIDTH_AFTER = 2;
 const LINE_WIDTH_CURRENT = 6;
 const ICON_STROKE = 2;
-const ICON_STROKE_CURRENT = 3;
+const ICON_STROKE_CURRENT = 4;
 const FILL_STYLE = '#ffffff';
 const STROKE_STYLE_BEFORE = '#f732b3';
 const STROKE_STYLE_CURRENT = '#ff0000';
@@ -51,12 +51,13 @@ export default class FlowMap extends React.Component {
     drawFlowMap() {
 
         const pars = this.props.pars;
-        const currentFrame = pars.currentFrame;
-        const timeBrackets = pars.timeBrackets;
         if (!pars.eventList.length) return;
 
-        const data = pars.eventList.filter(event => parseInt(event.Time) >= timeBrackets[0] && parseInt(event.Time) <= timeBrackets[1]);
+        const timeBrackets = pars.timeBrackets;
+        const currentFrameIndex = pars.currentFrame;
+        const curFrameTime = parseInt(pars.eventList[currentFrameIndex].Time);
         const scale = pars.scaleFactor;
+        const events = pars.eventList;
         const canvas = this.refs.flowMap;
         const context = canvas.getContext('2d');
 
@@ -74,58 +75,54 @@ export default class FlowMap extends React.Component {
         context.shadowColor = 'rgba(0, 0, 0, 0.3)';
 
         context.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw path before
+        context.lineWidth = LINE_WIDTH_BEFORE;
+        context.strokeStyle = STROKE_STYLE_BEFORE;
         context.beginPath();
+        events.filter(event => {
 
-        // Draw lines
-        data.forEach((row, index, events) => {
+            const time = parseInt(event.Time);
+            return time >= timeBrackets[0] && time <= curFrameTime;
 
-            const x = row.X * scale;
-            const y = row.Y * scale;
-
-            if (row.Event === 'START') {
-
-                context.moveTo(x, y);
-
-            } else {
-
-                const prevRow = events[index - 1];
-
-                if (row.Event.match('_DRAG_END') && prevRow) {
-                    const prevX = prevRow.X * scale;
-                    const prevY = prevRow.Y * scale;
-
-                    // Draw line to last mouse down position
-                    context.stroke();
-                    context.save();
-
-                    // Draw dashed line from last mouse down position
-                    context.beginPath();
-                    context.setLineDash([5, 5]);
-                    context.moveTo(prevX, prevY);
-                    context.lineTo(x, y);
-                    context.stroke();
-                    context.restore();
-
-                    // Begin new path and move start to current mouse position
-                    context.beginPath();
-                    context.moveTo(x, y);
-
-                } else {
-
-                    context.lineTo(x, y);
-
-                }
-            }
-
-        });
+        }).forEach((row, index, events) => this.drawPathChunk(row, index, events, context));
         context.stroke();
+
+        // Draw current path
+        if (currentFrameIndex) {
+            context.lineWidth = LINE_WIDTH_CURRENT;
+            context.strokeStyle = STROKE_STYLE_CURRENT;
+            context.beginPath();
+            const cPath = [events[currentFrameIndex - 1], events[currentFrameIndex]];
+            cPath.forEach((row, index, events) => this.drawPathChunk(row, index, events, context));
+            context.stroke();
+        }
+
+        // Draw path after
+        context.lineWidth = LINE_WIDTH_AFTER;
+        context.strokeStyle = STROKE_STYLE_AFTER;
+        context.beginPath();
+        events.filter(event => {
+
+            const time = parseInt(event.Time);
+            return time >= curFrameTime && time <= timeBrackets[1];
+
+        }).forEach((row, index, events) => this.drawPathChunk(row, index, events, context));
+        context.stroke();
+
 
         // Draw event icons
         let eType = '';
         let eCounter = 0;
-        data.forEach((row, index) => {
+        events.filter(event => {
+
+            const time = parseInt(event.Time);
+            return (time >= timeBrackets[0] && time <= timeBrackets[1]) || time === curFrameTime;
+
+        }).forEach((row) => {
             const x = row.X * scale;
             const y = row.Y * scale;
+            const time = parseInt(row.Time);
 
             // Count events
             if (row.Event === eType) eCounter++;
@@ -133,12 +130,53 @@ export default class FlowMap extends React.Component {
                 eCounter = 1;
                 eType = row.Event;
             }
-            this.iconDrawer.setLineWidth(index === currentFrame ? ICON_STROKE_CURRENT : ICON_STROKE);
-            this.iconDrawer.setStrokeStyle(index < currentFrame ? STROKE_STYLE_BEFORE : index === currentFrame ? STROKE_STYLE_CURRENT : STROKE_STYLE_AFTER);
+            this.iconDrawer.setLineWidth(time === curFrameTime ? ICON_STROKE_CURRENT : ICON_STROKE);
+            this.iconDrawer.setStrokeStyle(time < curFrameTime ? STROKE_STYLE_BEFORE : time > curFrameTime ? STROKE_STYLE_AFTER : STROKE_STYLE_CURRENT);
             this.iconDrawer.drawEventIcon(context, row.Event, x, y, eCounter);
         });
 
     };
+
+    drawPathChunk(row, index, events, context) {
+        const scale = this.props.pars.scaleFactor;
+        const x = row.X * scale;
+        const y = row.Y * scale;
+
+        if (row.Event === 'START') {
+
+            context.moveTo(x, y);
+
+        } else {
+
+            const prevRow = events[index - 1];
+
+            if (row.Event.match('_DRAG_END') && prevRow) {
+                const prevX = prevRow.X * scale;
+                const prevY = prevRow.Y * scale;
+
+                // Draw line to last mouse down position
+                context.stroke();
+                context.save();
+
+                // Draw dashed line from last mouse down position
+                context.beginPath();
+                context.setLineDash([5, 5]);
+                context.moveTo(prevX, prevY);
+                context.lineTo(x, y);
+                context.stroke();
+                context.restore();
+
+                // Begin new path and move start to current mouse position
+                context.beginPath();
+                context.moveTo(x, y);
+
+            } else {
+
+                context.lineTo(x, y);
+
+            }
+        }
+    }
 
     render() {
         const pars = this.props.pars;

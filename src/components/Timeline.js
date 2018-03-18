@@ -126,9 +126,9 @@ export default class Timeline extends React.Component {
         const pars = this.props.pars;
         const currentFrame = pars.currentFrame;
         const events = pars.eventList;
-        const duration = parseFloat(events[events.length - 1].Time);
-        const timeUnit = (pars.originalViewportWidth * pars.scaleFactor - this.config.timeCursorWidth) / duration;
-        const x = events[currentFrame].Time * timeUnit;
+        const duration = parseInt(events[events.length - 1].Time);
+        const timeUnit = (pars.originalViewportWidth * pars.scaleFactor) / duration;
+        const x = Math.round(events[currentFrame].Time * timeUnit);
 
         this.refs.timeCursor.style.left = x + 'px';
         this.bracketsState.timeCursorX = x;
@@ -153,7 +153,7 @@ export default class Timeline extends React.Component {
     moveBracket(x, bracket = this.bracketsState.selectedBracket) {
         const pars = this.props.pars;
         const events = pars.eventList;
-        const duration = parseFloat(events[events.length - 1].Time);
+        const duration = parseInt(events[events.length - 1].Time);
         const pixelTime = duration / (pars.originalViewportWidth * pars.scaleFactor);
         const timeBrackets = document.getElementById('timeBrackets');
         const right = this.bracketsState.rightBracketX;
@@ -163,7 +163,7 @@ export default class Timeline extends React.Component {
             timeBrackets.style.left = x + 'px';
             timeBrackets.style.width = right - x + 'px';
             this.bracketsState.leftBracketX = x;
-            this.props.timeBracketsUpdated([Math.floor(x * pixelTime), Math.ceil(right * pixelTime)]);
+            this.props.timeBracketsUpdated([Math.floor(x * pixelTime), Math.floor(right * pixelTime)]);
         }
         if (bracket === 'right') {
             timeBrackets.style.width = x - left + 'px';
