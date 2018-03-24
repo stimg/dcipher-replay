@@ -23,7 +23,7 @@ class App extends React.Component {
             eventList: [],
             scaleFactor: 1,
             currentFrame: 0,
-            timeBrackets: [],
+            timeBrackets: [0, 0],
             originalViewportWidth: window.innerWidth,
             originalViewportHeight: window.innerHeight
         };
@@ -125,8 +125,8 @@ class App extends React.Component {
     render() {
         return (
             <div className='App' onDragOver={this.handleFilesDrag} onDrop={this.handleFilesDrop}>
-                <Viewport pars={this.state} config={this.config} timeBracketsUpdated={this.handleTimeBracketsUpdate} />
                 <OpenFileButton action={this.handleOpenFiles}/>
+                <Viewport pars={this.state} config={this.config} timeBracketsUpdated={this.handleTimeBracketsUpdate} />
             </div>
         );
     }

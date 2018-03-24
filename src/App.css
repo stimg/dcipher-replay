@@ -84,6 +84,7 @@ input {
 
 .open-file-button {
   position: absolute;
+  top: 0;
   z-index: 10;
   display: inline-block;
   font-size: 120%;
@@ -95,10 +96,12 @@ input {
 }
 
 .drag-files-msg {
+  position: absolute;
+  top: 40vh;
+  width: 100vw;
   color: lightgrey;
   font-size: 150%;
   text-align: center;
-  margin-top: 40vh;
   line-height: 2em;
 }
 

@@ -139,15 +139,14 @@ export default class Timeline extends React.Component {
 
     resetTimeBracketUI() {
         const pars = this.props.pars;
-        if (pars.stateChangeType !== 'newDataSetLoaded') return;
+        if (pars.stateChangeType !== 'newDataSetLoaded' && pars.stateChangeType !== 'viewportSizeChanged') return;
 
-        const timeBracketsRef = this.refs.timeBrackets;
-        const right = Math.floor(pars.originalViewportWidth * pars.scaleFactor);
+        const events = pars.eventList;
+        const duration = parseInt(events[events.length - 1].Time);
+        const timeUnit = pars.originalViewportWidth * pars.scaleFactor / duration;
 
-        timeBracketsRef.style.left = 0;
-        timeBracketsRef.style.width = right + 'px';
-        this.bracketsState.leftBracketX = 0;
-        this.bracketsState.rightBracketX = right;
+        this.moveBracket(pars.timeBrackets[0] * timeUnit, 'left');
+        this.moveBracket(pars.timeBrackets[1] * timeUnit, 'right');
     }
 
     moveBracket(x, bracket = this.bracketsState.selectedBracket) {
