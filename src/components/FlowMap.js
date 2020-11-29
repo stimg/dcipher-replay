@@ -130,7 +130,8 @@ export default class FlowMap extends React.Component {
                 eCounter = 1;
                 eType = row.Event;
             }
-            this.iconDrawer.setLineWidth(time === curFrameTime ? ICON_STROKE_CURRENT : ICON_STROKE);
+            this.iconDrawer.setLineWidth(time === curFrameTimels
+                                         ? ICON_STROKE_CURRENT : ICON_STROKE);
             this.iconDrawer.setStrokeStyle(time < curFrameTime ? STROKE_STYLE_BEFORE : time > curFrameTime ? STROKE_STYLE_AFTER : STROKE_STYLE_CURRENT);
             this.iconDrawer.drawEventIcon(context, row.Event, x, y, eCounter);
         });
